@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>首页</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="js/lightbox/css/lightbox.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    </head>
+    <body class="home-page">
+
+    <!-- Modal 菜单toggle-->
+    <a class="alert-action" id="btn-alert-list" data-toggle="modal" data-target="#alert-menu"></a>
+    
+    <!-- Modal about toggle-->
+    <a class="alert-action alert-action-off hidden" id="btn-alert-about" data-toggle="modal" data-target="#alert-about"></a>
+
+    <!-- Modal download toggle-->
+    <a class="alert-action alert-action-off hidden" id="btn-alert-appdownload" data-toggle="modal" data-target="#alert-appdownload"></a>
+
+    <!-- Modal 菜单-->
+    <div class="modal fade" id="alert-menu" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <ul id="page-menu">
+                <li data-menuanchor="homePage" class="active">
+                <a href="#homePage">Home<span class="split"></span>首页</a>
+                </li>
+                <li data-menuanchor="aboutPage"><a href="#homePage">About<span class="split"></span>关于</a></li>
+                <li data-menuanchor="servicePage"><a href="#servicePage">Service<span class="split"></span>服务</a></li>
+                <li data-menuanchor="workPage"><a href="#workPage">Work<span class="split"></span>案例</a></li>
+                <li data-menuanchor="teamPage"><a href="#teamPage">Team<span class="split"></span>团队</a></li>
+                <li data-menuanchor="contactPage"><a href="#contactPage">Contact<span class="split"></span>联系</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Modal 菜单-->
+    <div class="modal fade" id="alert-appdownload" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="container-fluid text-center">
+                <img class="app-ios" src="images/erweima-lg.png" alt="">
+                <img class="app-android" src="images/erweima-lg.png" alt="">
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 关于我们-->
+    <div class="modal fade" id="alert-about" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="about-intro">
+                <div class="container-fluid">
+                <h2>about us</h2>
+                <p>我们专注移动互联网应用开发的软体外包服务，我们目前的主营业务是移动应用软体开发与设计（包括iPhone,Android,Blackberry,Windows Phone手机平台的应用程式与设计),我们专注移动互联网应用开发的软体外包服务，我们目前的主营业务是移动应用软体开发与设计（包括iPhone,Android,Blackberry,Windows Phone手机平台的应用程式与设计）</p>
+                <p>我们专注移动互联网应用开发的软体外包服务，我们目前的主营业务是移动应用软体开发与设计（包括iPhone,Android,Blackberry,Windows Phone手机平台的应用程式与设计),我们专注移动互联网应用开发的软体外包服务，我们目前的主营业务是移动应用软体开发</p>
+                <p>我们专注移动互联网应用开发的软体外包服务，我们目前的主营业务是移动应用软体开发与设计（包括iPhone,Android,Blackberry,Windows Phone手机平台的应用程式与设计),我们专注移动互联网应用开发的软体外包服务，我们目前的主营业务是移动应用软体开发</p>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div id="fullpage">
+        <!-- 首版 -->
+    	<section class="section home" id="home">
+            <div class="cloud-group">
+                <div class="cloud cloud-1"></div>
+                <div class="cloud cloud-2"></div>
+                <div class="cloud cloud-3"></div>
+                <div class="cloud cloud-4"></div>
+                <div class="cloud cloud-5"></div>
+                <div class="cloud cloud-6"></div>
+            </div>
+    		
+            <div class="home-xiaocao"></div>
+            <div class="home-content">
+                <img src="images/img_home_logo.png" width="138px" height="226px" alt="" class="logo">
+                <div class="text-center home-intro">
+                    <h1 >騰沐2015</h1>
+                    <p><em>商务</em><em>设计</em><em>程序</em></p>
+                </div>
+                <div class="home-download" id="app-download">
+                    <button class="btn-mobile btn-iphone">iPhone</button><!--
+                    --><button class="btn-mobile btn-android">Android</button>
+                </div>
+            </div>
+    	</section>
+        
+        <!-- 关于 -->
+    	<section class="section " id="about">
+            <div class="container-fluid">
+                
+                <h2 class="section-title">我们/About Us</h2>
+                
+                <div class="row">
+                    <div class="col-md-6 about-l">
+                        <p class="about-intro"><strong>公司创建于2010年3月。三年来为美国，新加坡，马来西亚，台湾，香港，中国等地提供了大量的app开发，获得了大量的客户好评</strong></p>
+                        <p class="about-intro">我们专注移动互联网应用开发的软体外包服务，我们目前的主营业务是移动应用软体开发与设计（包括iPhone,Android,Blackberry,Windows Phone手机平台的应用程式与设计）...
+                        <a class="about-more" data-toggle="modal" data-target="#alert-about">more</a></p>
+                    </div>
+                    <div class="col-md-6 about-r visible-md-block visible-lg-block">
+                        <img src="images/img_us_phone.png.jpg" alt="">
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+        
+        <!-- 服务 -->
+    	<section class="section" id="service">
+            <div class="container-fluid">
+                <h2 class="section-title">服务/What We doing</h2>
+
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="sev-item sev-ios">
+                            <a class="sev-item-img">
+                                <img class="img-uncheck" src="images/icon_doing_ios_uncheck.png.png" alt="">
+                                <img class="img-checked" src="images/icon_doing_ios_check.png.png" alt="">
+                            </a>
+                            <span class="sev-item-title"><a href="">ios APP</a></span>
+                            <p class="sev-item-intro">
+                                我们专注移动互联网应用开发的软体外包服务我们专注移动互联网应用开发的软体外包服务,我们专注移动互联网应用.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="sev-item sev-ios">
+                            <a class="sev-item-img">
+                                <img class="img-uncheck" src="images/icon_doing_Android_uncheck.png.png" alt="">
+                                <img class="img-checked" src="images/icon_doing_Android_check.png.png" alt="">
+                            </a>
+                            <span class="sev-item-title"><a href="">ios APP</a></span>
+                            <p class="sev-item-intro">
+                                我们专注移动互联网应用开发的软体外包服务我们专注移动互联网应用开发的软体外包服务,我们专注移动互联网应用.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-sm-3">
+                        <div class="sev-item sev-ios">
+                            <a class="sev-item-img">
+                                <img class="img-uncheck" src="images/icon_doing_web_uncheck.png.png" alt="">
+                                <img class="img-checked" src="images/icon_doing_web_check.png.png" alt="">
+                            </a>
+                            <span class="sev-item-title"><a href="">Web Design</a></span>
+                            <p class="sev-item-intro">
+                                我们专注移动互联网应用开发的软体外包服务我们专注移动互联网应用开发的软体外包服务,我们专注移动互联网应用.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3">
+                        <div class="sev-item sev-andr">
+                            <div>
+                            <a class="sev-item-img">
+                                <img class="img-uncheck" src="images/icon_doing_game_uncheck.png.png" alt="">
+                                <img class="img-checked" src="images/icon_doing_game_check.png.png" alt="">
+                            </a>
+                            </div>
+                            <span class="sev-item-title"><a href="">Mobile Games</a></span>
+                            <p class="sev-item-intro">
+                                我们专注移动互联网应用开发的软体外包服务我们专注移动互联网应用开发的软体外包服务,我们专注移动互联网应用.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+        
+        <!-- 项目 -->
+    	<section class="section" id="work">
+            <h2 class="section-title font-48">We have been working On...</h2>
+            <div class="work-list">
+                <ul class="row">
+                    <li class="col-sm-4">
+                        <a class="work-list-toggle" href="javascript:void(0)">
+                            <img src="images/work_cd.jpg" alt="">
+                            <h3>智能插座</h3>
+                        </a>
+                        <div class="hidden work-list-anli">
+                            <a href="images/work/cz (1).png" data-lightbox="cz" data-title="智能插座"></a>
+                            <a href="images/work/cz (2).png" data-lightbox="cz" data-title="智能插座"></a>
+                            <a href="images/work/cz (3).png" data-lightbox="cz" data-title="智能插座"></a>
+                            <a href="images/work/cz (4).png" data-lightbox="cz" data-title="智能插座"></a>
+                        </div>
+                    </li>
+                    <li class="col-sm-4">
+                        <a class="work-list-toggle" href="javascript:void(0)">
+                            <img src="images/work_jc.jpg" alt="">
+                            <h3>实况竞猜</h3>
+                        </a>
+                    </li>
+                    <li class="col-sm-4">
+                        <a class="work-list-toggle" href="javascript:void(0)">
+                            <img src="images/work_bt.jpg" alt="">
+                            <h3>冰桶大挑战</h3>
+                        </a>
+                        
+                    </li>
+                </ul>
+                <ul class="row">
+                     <li class="col-sm-4">
+                        <a class="work-list-toggle" href="javascript:void(0)">
+                            <img src="images/work_sc.jpg" alt="">
+                            <h3>超级厨房</h3>
+                        </a>
+                        <div class="hidden work-list-anli">
+                            <a href="images/work/sc (1).png" data-lightbox="sc" data-title="超级厨房"></a>
+                            <a href="images/work/sc (2).png" data-lightbox="sc" data-title="超级厨房"></a>
+                            <a href="images/work/sc (3).png" data-lightbox="sc" data-title="超级厨房"></a>
+                            <a href="images/work/sc (4).png" data-lightbox="sc" data-title="超级厨房"></a>
+                        </div>
+                    </li>
+                    <li class="col-sm-4">
+                        <a class="work-list-toggle" href="javascript:void(0)">
+                            <img src="images/work_cd.jpg" alt="">
+                            <h3>婚纱摄影</h3>
+                        </a>
+                    </li>
+                    <li class="col-sm-4">
+                        <a class="work-list-toggle" href="javascript:void(0)">
+                           <img src="images/work_doc.jpg" alt="">
+                            <h3>维健医务</h3>
+                        </a>
+                    </li>
+                </ul>
+                <ul class="row">
+                    <li class="col-sm-4">
+                        <a class="work-list-toggle" href="javascript:void(0)">
+                            <img src="images/work_yb.jpg" alt="">
+                            <h3>疯狂的月饼</h3>
+                        </a>
+                    </li>
+                    <li class="col-sm-4">
+                        <a class="work-list-toggle" href="javascript:void(0)">
+                            <img src="images/work_wuxian.jpg" alt="">
+                            <h3>智能游戏鼠标</h3>
+                        </a>
+                    </li>
+                    <li class="col-sm-4 work-more">
+                        <a class="work-list-toggle" href="javascript:void(0)">
+                            <img src="images/work_more.png" alt="">
+                            <h3 class="font-48">期待新作</h3>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section"  id="news">
+            <div class="container-fluid">
+                <h2 class="section-title">新闻/News</h2>
+                <div class="row">
+                <div class="col-sm-4">
+                    <div class="news-item">
+                        <div class="text-center"><img src="images/news_last.jpg" alt=""></div>
+                        <h3 class="news-cate text-center font-34">最新</h3>
+                        <div class="news-title font-24">
+                        游戏创业热潮退去：<br/>
+                        热钱与情怀难以支撑市场
+                        </div>
+                        <p class="news-desc font-18">
+                            当创业者还在幻想自己成为下一个百万富翁的时候，公司却己经关门大吉了。当创业者还在幻想自己成为下一个百万富翁的时候，。
+                        </p>
+                        <div class="news-more text-center">
+                            <a href="news-list.html">查看更多</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="news-item">
+                        <div class="text-center"><img src="images/news_hot.jpg" alt=""></div>
+                        <h3 class="news-cate text-center font-34">最热</h3>
+                        <div class="news-title font-24">
+                        2015年被百万富翁的时候百万富翁的时候？
+                        </div>
+                        <p class="news-desc font-18 text-lighter">
+                            当创业者还在幻想自己成为下一个百万富翁的时候，公司却己经关门大吉了。当创业者还在幻想自
+                        </p>
+                        <div class="news-more text-center">
+                            <a href="news-list.html">查看更多</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+
+                    <div class="news-item">
+                        <div class="text-center"><img src="images/news_topic.jpg" alt=""></div>
+                        <h3 class="news-cate text-center font-34">话题</h3>
+                        <div class="news-title font-24 text-lighter">
+                            2015年被百万富翁的时候百万富翁的时候？
+                        </div>
+                        <p class="news-desc font-18">
+                            当创业者还在幻想自己成为下一个百万富翁的时候，公司却己经关门大吉了。当创业者还在幻想自己成为下一个百万富翁的时候，。
+                        </p>
+                        <div class="news-more text-center">
+                            <a href="news-list.html">查看更多</a>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </section>
+
+    	<section class="section"  id="team">
+        <h2 class="section-title font-48 text-center">We are a team</h2>
+         <div class="container-fluid">
+             <ul class="team-list">
+                <li>
+                    <img src="images/team/img_team_head_01.png.png" alt="">
+                    <div class="t-bg"></div>
+                    <div class="t-name">
+                        <div class="t-name-wp">
+                            <span class="font-34">Andy</span>
+                            <span class="font-24">Project Director</span>
+                        </div>
+                    </div>
+                </li>
+
+                <li>
+                    <img src="images/team/img_team_head_02.png.png" alt="">
+                    <div class="t-bg"></div>
+                    <div class="t-name">
+                        <div class="t-name-wp">
+                            <span class="font-34">Andy</span>
+                            <span class="font-24">Project Director</span>
+                        </div>
+                    </div>
+                </li>
+
+                <li>
+                    <img src="images/team/img_team_head_03.png.png" alt="">
+                    <div class="t-bg"></div>
+                    <div class="t-name">
+                        <div class="t-name-wp">
+                            <span class="font-34">Andy</span>
+                            <span class="font-24">Project Director</span>
+                        </div>
+                    </div>
+                </li>
+
+                <li>
+                    <img src="images/team/img_team_head_04.png.png" alt="">
+                    <div class="t-bg"></div>
+                    <div class="t-name">
+                        <div class="t-name-wp">
+                            <span class="font-34">Andy</span>
+                            <span class="font-24">Project Director</span>
+                        </div>
+                    </div>
+                </li>
+
+                <li>
+                    <img src="images/team/img_team_head_05.png.png" alt="">
+                    <div class="t-bg"></div>
+                    <div class="t-name">
+                        <div class="t-name-wp">
+                            <span class="font-34">Andy</span>
+                            <span class="font-24">Project Director</span>
+                        </div>
+                    </div>
+                </li>
+                    
+                <li>
+                    <img src="images/team/img_team_head_06.png.png" alt="">
+                    <div class="t-bg"></div>
+                    <div class="t-name">
+                        <div class="t-name-wp">
+                            <span class="font-34">Andy</span>
+                            <span class="font-24">Project Director</span>
+                        </div>
+                    </div>
+                </li>
+
+                <li>
+                    <img src="images/team/img_team_head_07.png.png" alt="">
+                    <div class="t-bg"></div>
+                    <div class="t-name">
+                        <div class="t-name-wp">
+                            <span class="font-34">Andy</span>
+                            <span class="font-24">Project Director</span>
+                        </div>
+                    </div>
+                </li>
+
+                <li>
+                    <img src="images/team/img_team_head_08.png.png" alt="">
+                    <div class="t-bg"></div>
+                    <div class="t-name">
+                        <div class="t-name-wp">
+                            <span class="font-34">Andy</span>
+                            <span class="font-24">Project Director</span>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="wait-for-you">
+                    <img src="images/team/default.gif" alt="">
+                </li>
+
+                <li>
+                    <img src="images/team/img_team_head_09.png.png" alt="">
+                    <div class="t-bg"></div>
+                    <div class="t-name">
+                        <div class="t-name-wp">
+                            <span class="font-34">Andy</span>
+                            <span class="font-24">Project Director</span>
+                        </div>
+                    </div>
+                </li>
+
+                <li>
+                    <img src="images/team/img_team_head_10.png.png" alt="">
+                    <div class="t-bg"></div>
+                    <div class="t-name">
+                        <div class="t-name-wp">
+                            <span class="font-34">Andy</span>
+                            <span class="font-24">Project Director</span>
+                        </div>
+                    </div>
+                </li>
+
+                <li>
+                    <img src="images/team/img_team_head_11.png.png" alt="">
+                    <div class="t-bg"></div>
+                    <div class="t-name">
+                        <div class="t-name-wp">
+                            <span class="font-34">Andy</span>
+                            <span class="font-24">Project Director</span>
+                        </div>
+                    </div>
+                </li>
+
+                <li>
+                    <img src="images/team/img_team_head_12.png.png" alt="">
+                    <div class="t-bg"></div>
+                    <div class="t-name">
+                        <div class="t-name-wp">
+                            <span class="font-34">Andy</span>
+                            <span class="font-24">Project Director</span>
+                        </div>
+                    </div>
+                </li>
+
+                <li>
+                    <img src="images/team/img_team_head_13.png.png" alt="">
+                    <div class="t-bg"></div>
+                    <div class="t-name">
+                        <div class="t-name-wp">
+                            <span class="font-34">Andy</span>
+                            <span class="font-24">Project Director</span>
+                        </div>
+                    </div>
+                </li>
+
+                <li>
+                    <img src="images/team/img_team_head_14.png.png" alt="">
+                    <div class="t-bg"></div>
+                    <div class="t-name">
+                        <div class="t-name-wp">
+                            <span class="font-34">Andy</span>
+                            <span class="font-24">Project Director</span>
+                        </div>
+                    </div>
+                </li>
+
+                <li>
+                    <img src="images/team/img_team_head_15.png.png" alt="">
+                    <div class="t-bg"></div>
+                    <div class="t-name">
+                        <div class="t-name-wp">
+                            <span class="font-34">Andy</span>
+                            <span class="font-24">Project Director</span>
+                        </div>
+                    </div>
+                </li>
+
+                <li>
+                    <img src="images/team/img_team_head_16.png.png" alt="">
+                    <div class="t-bg"></div>
+                    <div class="t-name">
+                        <div class="t-name-wp">
+                            <span class="font-34">Andy</span>
+                            <span class="font-24">Project Director</span>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="wait-for-you">
+                    <img src="images/team/default.gif" alt="">
+                </li>
+
+
+
+             </ul>
+         </div>   
+        </section>
+
+    	<section class="section" id="contact">
+        <div class="container-fluid" id="contact-customer">
+            <h2 class="section-title">我们的客户/Customers</h2>
+            <div class="customer-wp clearfix">
+                <a class="customer-item" href="javascript:void(0)">
+                    <img src="images/customer/img_customer_bw_grey.png.png" alt="">
+                    <img class="img-active" src="images/customer/img_customer_bw.png.png" alt="">
+                </a>
+                <a class="customer-item" href="javascript:void(0)">
+                    <img  src="images/customer/img_customer_cf_grey.png.png" alt="">
+                    <img class="img-active" src="images/customer/img_customer_cf.png.png" alt="">
+                </a>
+                <a class="customer-item" href="javascript:void(0)">
+                     <img src="images/customer/img_customer_smgj_grey.png.png" alt="">
+                     <img class="img-active" src="images/customer/img_customer_smgj.png.png" alt="">
+                </a>
+                <a class="customer-item" href="javascript:void(0)">
+                    <img src="images/customer/img_customer_bsk_grey.png.png" alt="">
+                    <img class="img-active" src="images/customer/img_customer_bsk.png.png" alt="">
+                </a>
+                
+                <a class="customer-item" href="javascript:void(0)">
+                    <img src="images/customer/img_customer_yj_grey.png.png" alt="">
+                    <img class="img-active" src="images/customer/img_customer_yj.png.png" alt="">
+                </a>
+                <a class="customer-item" href="javascript:void(0)">
+                    <img src="images/customer/img_customer_ggjt_grey.png.png" alt="">
+                    <img class="img-active" src="images/customer/img_customer_ggjt.png.png" alt="">
+                </a> 
+                <a class="customer-item" href="javascript:void(0)">
+                    <img src="images/customer/img_customer_hg_grey.png.png" alt="">
+                    <img class="img-active" src="images/customer/img_customer_hg.png.png" alt="">
+                </a>
+
+                <a class="customer-item" href="javascript:void(0)">
+                    <img src="images/customer/img_customer_d3_grey.png.png" alt="">
+                    <img class="img-active" src="images/customer/img_customer_d3.png.png" alt="">
+                </a>
+
+                <a class="customer-item" href="javascript:void(0)">
+                    <img src="images/customer/img_customer_wjyw_grey.png.png" alt="">
+                    <img class="img-active" src="images/customer/img_customer_wjyw.png.png" alt="">
+                    </a>
+
+                <a class="customer-item" href="javascript:void(0)">
+                    <img src="images/customer/img_customer_qx_grey.png.png" alt="">
+                    <img class="img-active" src="images/customer/img_customer_qx.png.png" alt="">
+                </a>
+            </div>            
+        </div>
+        <div class="footer">
+            <div class="contact-us container-fulid">
+                <div class="clearfix company">
+                    <div class="col-smm-4 text-center">
+                        <img class="logo" src="images/logo_customer.png.png" alt="">
+                    </div>
+                    <div class="col-smm-4 company-info">
+                        <i class="line"></i>
+                        <div class="info-wp">
+                            <p class="font-34">深騰沐科技有限公司</p>
+                            <span class="icon-tel font-18">深圳(86-0755)8520 7689/香港(852)9877 3111</span>
+                            <span class="icon-email font-18">0755@tm0755.com</span>
+                            <span class="icon-qq font-18">3495867576</span>
+                            <span class="icon-ads font-18">深圳市南山区科技园大厦A座908<br/>香港荃沙咀道362号</span>
+                        </div>
+                    </div>
+                    <div class="col-smm-4 text-center">
+                        <span class="online-zx font-18">在线咨询</span>
+                        <img src="images/erweima.png" alt="">
+                    </div>
+                </div> 
+            </div>
+            <div class="footer-menu">
+                <div class="container-fulid clearfix">
+                    <div class="col-md-6">Copyright &copy; 深騰沐科技有限公司 2013-2015.</div>
+                    <div class="col-md-6 foot-nav text-right">
+                        <a href="javascript" data-index=0>首页</a>
+                        <a href="javascript" data-index=0>关于</a>
+                        <a href="javascript" data-index=0>服务</a>
+                        <a href="javascript" data-index=0>案例</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </section>
+    </div>
+
+
+    
+    
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery.easings.min.js"></script>
+    <script src="js/fullpage/jquery.slimscroll.min.js"></script>
+    <script src="js/fullpage/jquery.fullPage.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/lightbox/js/lightbox.js"></script>
+    <script src="js/home.js"></script>
+  </body>
+</html>
