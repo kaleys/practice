@@ -1,0 +1,76 @@
+@import "./../../less/reset.less";
+@arrow-bg:#4671c9;
+@arrow-color: #fff;
+
+/**
+ * 小箭头:思路是利用border绘制三角形，然后用:before和:after来组成两个相等的三角形进行叠加
+ * @param @size        小箭头大小
+ * @param @bgColor     背景颜色
+ * @param @arrowSize   小箭头的大小
+ * @param @arrowColor  箭头颜色
+ * @param @arrowHeight 箭头的高度
+ */
+.tinyArrow (@size, @bgColor, @arrowSize, @arrowColor, @arrowHeight){
+  position: relative;
+  display: inline-block;
+  width: @size;
+  height: @size;
+  background: @bgColor;
+  border-radius: 50%;
+
+  &:before,
+  &:after {
+    position: absolute;
+    top: (@size - @arrowSize)/2;
+    width: 0;
+    height: 0;
+    border: @arrowSize/2 solid transparent;
+    content: ' ';
+  }
+
+  &:before {
+    left: (@size - (@arrowSize/2))/2 + @arrowHeight ;
+    border-left-color: @arrowColor;
+  }
+  
+  &:after {
+    left: (@size - (@arrowSize/2))/2;
+    border-left-color: @bgColor;
+  }
+}
+
+/**
+ * 小箭头:思路是用:after伪元素用border画一个正方形，然后隐藏左下两边边框，然后rotate 45deg就可以了
+ * @param @fontSize    字体的大小，width和height会根据字体大小来确定
+ * @param @bgColor     背景颜色
+ * @param @arrowColor  箭头颜色
+ */
+.tinyArrow2 (@fontSize, @bgColor, @arrowColor){
+  position: relative;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  font-size: @fontSize;
+  background: @bgColor;
+  border-radius: 50%;
+
+  &:after {
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    top: (100%-50%)/2;
+    left: (100%-50%)/2-10;
+    border: 0.075em solid @arrowColor;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+    transform: rotate3d(0,0,1,45deg);
+    box-sizing: border-box;
+    content: ' ';
+  }
+}
+.tiny-arrow {
+  .tinyArrow(50px, @arrow-bg, 35px, @arrow-color ,4px)
+}
+.tiny-arrow2 {
+  .tinyArrow2(50px, @arrow-bg, @arrow-color);
+}
