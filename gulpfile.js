@@ -37,21 +37,20 @@ function lessTask(src, destSrc) {
             .pipe(less({plugins : plugins}))
             .pipe(sourcemaps.write('./'))
             .pipe(gulp.dest(destSrc))
-            .pipe(connect.reload())
+            .pipe(connect.reload());
     }
 }
 
-//
 gulp.task("less-ta", lessTask('./tinyarrow/less/!*.less', './tinyarrow/'));
 gulp.task('tinyarrow', function () {
     return gulp.watch('./tinyarrow/less/!*.less', ['less-ta']);
-});
-
-var weChartLessPath = './wechart/less/*.less';
+});var weChartLessPath = './wechart/less/!*.less';
 gulp.task("less-wc", lessTask(weChartLessPath, './wechart'));
 gulp.task('wechart', ['httpServer'], function () {
     return gulp.watch(weChartLessPath, ['less-wc']);
 });
+
+
 
 
 

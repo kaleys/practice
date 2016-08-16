@@ -44,9 +44,36 @@
         .colr {
             flex-direction: column-reverse;
         }
+        .align-items {
+            flex-wrap: wrap;
+            align-items: baseline;
+        }
+        .align-items > div {
+            width: 100px;
+            background: #6a5237;
+            margin: 5px;
+        }
     </style>
 </head>
 <body>
+<div class="flex align-items">
+    <div style="font-size: 2.8rem;">
+        2.8rem
+    </div>
+    <div style="font-size:1.4rem;">
+        1.4rem
+    </div>
+    <div style="font-size:1.2rem;">
+        1.2rem
+    </div>
+    <div style="font-size:3rem;">
+        3rem
+    </div>
+    <div style="font-size:5rem;">
+        5rem
+    </div>
+</div>
+
 <div class="flex row">
     <span>1</span><span>2</span><span>3</span><span>4</span>
     <span>flex-wrap: wrap-reverse;</span>
