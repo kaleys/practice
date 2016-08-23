@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>html</title>
+    <style>
+        .wrap { border: solid aqua; width:10em;}
+        span { float: left; width: 5em; height: 5em; border: solid blue; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+   <span> </span>
+   <div style="display: block;width: 100px;height: 40px;border: 1px solid red;">我是span</div>
+</div>
+
+
+<div style="width: 80%;margin-top: 60px;border: 1px solid red;overflow:hidden;">
+    <div style="float: left;border: 1px solid yellow;width: 200px;">Note. This property applied to all elements in CSS1. Implementations may therefore have supported this property on all elements. In CSS2 and CSS 2.1 the 'clear' property only applies to block-level elements. Therefore authors should only use this property on block-level elements. If an implementation does support clear on inline elements, rather than setting a clearance as explained above, the implementation should force a break and effectively insert one or more empty line boxes (or shifting the new line box downward as described in section 9.5) to move the top of the cleared inline's line box to below the respective floating box(es).</div>
+    Authors may use fixed positioning to create frame-like presentations. Consider the following frame layoutddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+</div>
+
+
+<div style="width: 100px;height: 100px;border: 1px solid red;position: relative;left: -1em;right:auto;direction: ltr">你好</div>
+<div style="width: 100px;height: 100px;border: 1px solid red;position: relative;left: auto;right: 1em;direction: ltr">你好</div>
+<div style="width: 100px;height: 100px;border: 1px solid red;position: relative;left: -1em;right: 5em;direction: ltr">你好</div>
+</body>
+</html>
