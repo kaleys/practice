@@ -1,0 +1,21 @@
+body {
+    font-family: "微软雅黑";
+}
+.datepicker {
+    background: #fff;
+    width: 300px;
+    box-shadow: 0 0 5px rgba(0,0,0,.5);
+}
+.datepicker .wrap {
+    padding: 10px 5px;
+}
+.datepicker table {
+    width: 100%;
+}
+.datepicker td,.datepicker th {
+    padding: 2px 5px;
+    text-align: center;
+}
+.datepicker .week td {
+    font-weight: bold;
+}
