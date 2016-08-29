@@ -3,19 +3,36 @@ body {
 }
 .datepicker {
     background: #fff;
-    width: 300px;
+    width: 250px;
     box-shadow: 0 0 5px rgba(0,0,0,.5);
 }
 .datepicker .wrap {
-    padding: 10px 5px;
+    padding: 15px 8px;
 }
 .datepicker table {
     width: 100%;
 }
 .datepicker td,.datepicker th {
-    padding: 2px 5px;
+    padding: 5px 5px;
     text-align: center;
 }
-.datepicker .week td {
-    font-weight: bold;
+
+.datepicker td {
+    border-radius: 4px;
+}
+.datepicker td:hover {
+    background: #eee;
+}
+.datepicker td.today {
+    background: #5bc0de;
+    color: #fff;
+}
+.datepicker td.active {
+    background: #428bca;
+    color: #fff;
+}
+
+.datepicker-day .old,
+.datepicker-day .new {
+    color: #777;
 }

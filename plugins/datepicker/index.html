@@ -5,7 +5,7 @@
     <title></title>
     <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="datepicker.css"/>
-    <script src="datepicker.js"></script>
+
 </head>
 <body>
     <div class="container row">
@@ -21,7 +21,7 @@
             <thead>
                 <tr>
                     <th><span class="glyphicon glyphicon-chevron-left"></span></th>
-                    <th colspan="5">2015年7月</th>
+                    <th colspan="5" class="curDate">2015年7月</th>
                     <th><span class="glyphicon glyphicon-chevron-right"></span></th>
                 </tr>
             </thead>
@@ -38,9 +38,9 @@
             </thead>
             <tbody>
             <tr>
-                <td>1</td>
-                <td>2</td>
-                <td>3</td>
+                <td class="old">1</td>
+                <td class="active">2</td>
+                <td class="today">3</td>
                 <td>4</td>
                 <td>5</td>
                 <td>6</td>
@@ -73,11 +73,17 @@
                 <td>29</td>
                 <td>30</td>
                 <td>31</td>
-
+                <td class="new">1</td>
+                <td class="new">2</td>
+                <td class="new">3</td>
+                <td class="new">4</td>
             </tr>
             </tbody>
         </table>
         </div>
     </div>
+
+
+    <script src="datepicker.js"></script>
 </body>
 </html>

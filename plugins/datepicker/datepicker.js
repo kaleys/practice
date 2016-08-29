@@ -24,6 +24,7 @@
         }
     }
 
+    //将字符串或者int类型转成日期对象
     function parseDate(date){
         if(typeof date=='string'){
             if (/^\d+$/.test(date)) {
@@ -57,6 +58,7 @@
         dd: dateGetter("Date", 2),
         d: dateGetter("Date", 1)
     }, rdateFormat = /((?:[^ymd']+)|(?:'(?:[^']|'')*')|(?:E+|y+|m+|d+))(.*)/;
+    //日期格式化
     function dateFormat(date,format){
         var text="",parts=[],match,fn;
         date = parseDate(date);
@@ -87,6 +89,9 @@
         this.format = opts.format||"yyyy-mm-dd";
         this.value = opts.value;
         this.date = null;
+        this.todayIndex = null;
+
+        this.init();
     }
 
     Datepicker.prototype = {
@@ -103,9 +108,74 @@
             this.maxDate = maxDate;
             this.date = (this.value&&parseDate(this.value))||new Date();
             this.value = dateFormat(this.date,this.format);
+
+            this.initDayPanel();
         },
         initDayPanel: function(){
-
+            var date = this.date, year = date.getFullYear(), month = date.getMonth(), days = this.getShowDays(this.date),
+                tpl = '<div class="day wrap"><table><thead>HEAD</thead><tbody>BODY</tbody><tfoot>FOOT</tfoot></table></div>',
+                thead=tbody=tfoot='',locale = Datepicker.locale,config=Datepicker.config,todayCls;
+            thead = '<tr><th><span class="'+config.leftCls+'"></span></th>' +
+                '<th colspan="5" class="curDate">' + year + locale.YEAR + locale.MONTH[month] +'</th>' +
+                '<th><span class="'+config.rightCls+'"></span></th></tr><tr>';
+            for(var i=0; i<7; i++){
+                thead +='<th>' + locale.MONTH[i] + '</th>';
+            }
+            thead +='</tr>';
+            for(i=0; i<days.length;i++) {
+                if(i%7===6){
+                    tbody += '</tr>';
+                }
+                if(i%7===0){
+                    tbody += '<tr>';
+                }
+                todayCls = i==this.todayIndex ? 'class="today"' : '';
+                tbody += '<td '+ todayCls +'>'+days[i]+'</td>';
+            }
+        },
+        getCurDayRange: function(date){
+            var year = date.getFullYear(),month = date.getMonth();
+            return  [new Date(year,month,1),new Date(year,month+1,0)];
+        },
+        getShowDays: function(date){
+            var curDate = date || this.date,year = curDate.getFullYear(),month = curDate.getMonth(),
+                day = curDate.getDate(),start = (new Date(year,month,1)).getDate(),
+                end = (new Date(year,month+1,0)).getDate(),weekIndex = startDate.getDay(),
+                dayArr = [], i = weekIndex-1,j=1;
+            //前一个月
+            if(i>=0){
+                var prevMonth = new Date(year,month,0).getDate();
+                while(i>=0){
+                    dayArr[i] = prevMonth;
+                    prevMonth--;
+                    i--;
+                }
+            }
+            //当前月
+            for(i = start; i <= end; i++) {
+                if(day === i){
+                    this.todayIndex = weekIndex;
+                }
+                dayArr[weekIndex++] = i;
+            }
+            //后一个月
+            for(i=weekIndex;i<42;i++){
+                dayArr[i] = j++;
+            }
+            return dayArr;
         }
-    }
+    };
+
+    Datepicker.locale = {
+        WEEK: ['日','一','二','三','四','五','六'],
+        MONTH: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+        YEAR:'年'
+    };
+    Datepicker.config = {
+        leftCls:'glyphicon glyphicon-chevron-left',
+        rightCls:'glyphicon glyphicon-chevron-right'
+    };
+
+
+    new Datepicker({ele:document.body})
 })();
