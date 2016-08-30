@@ -7,20 +7,22 @@ body {
     box-shadow: 0 0 5px rgba(0,0,0,.5);
 }
 .datepicker .wrap {
-    padding: 15px 8px;
+    padding: 5px;
 }
 .datepicker table {
     width: 100%;
 }
 .datepicker td,.datepicker th {
-    padding: 5px 5px;
+    padding: 5px 3px;
     text-align: center;
 }
-
 .datepicker td {
     border-radius: 4px;
 }
-.datepicker td:hover {
+.datepicker td:hover,
+.datepicker .title:hover,
+.datepicker .prev:hover,
+.datepicker .next:hover{
     background: #eee;
 }
 .datepicker td.today {
@@ -32,7 +34,37 @@ body {
     color: #fff;
 }
 
-.datepicker-day .old,
-.datepicker-day .new {
+.datepicker .day .old,
+.datepicker .day .new {
     color: #777;
+}
+
+.datepicker .prev,.datepicker .next {
+    font-size: 20px;
+    line-height: 1;
+    padding-top: 1px;
+}
+
+.datepicker .day td,
+.datepicker .title,
+.datepicker .prev,
+.datepicker .next{
+    cursor: pointer;
+}
+.datepicker .disabled {
+    color: #ddd !important;
+    pointer-events: none;
+}
+.datepicker tfoot td {
+    text-align: right;
+}
+.datepicker tfoot span {
+    margin-left: 5px;
+}
+.datepicker tfoot td:hover {
+    background: none;
+}
+
+.datepicker .month td {
+    padding: 20px 3px;
 }
