@@ -5,7 +5,6 @@
     function toInt(str) {
         return parseInt(str, 10) || 0
     }
-
     function padNumber(num, digits, trim) {
         num = '' + num;
         while (num.length < digits)
@@ -14,7 +13,6 @@
             num = num.substr(num.length - digits);
         return num;
     }
-
     function dateGetter(name, size, offset, trim) {
         return function (date) {
             var value = date["get" + name]();
@@ -23,7 +21,6 @@
             return padNumber(value, size, trim);
         }
     }
-
     //将字符串或者int类型转成日期对象
     function parseDate(date){
         if(typeof date=='string'){
@@ -49,7 +46,6 @@
         }
         return new Date(date.getFullYear(),date.getMonth(),date.getDate());
     }
-
     var DATE_FORMATS = {
         yyyy: dateGetter("FullYear", 4),
         yy: dateGetter("FullYear", 2, 0, true),
@@ -79,7 +75,6 @@
         });
         return text;
     }
-
     function Datepicker(opts){
         opts = opts||{};
         if(!opts.ele) return ;
@@ -89,11 +84,10 @@
         this.format = opts.format||"yyyy-mm-dd";
         this.value = opts.value;
         this.date = null;
-        this.showFooter = opts.showFooter;
-        this.todayIndex = null;
+        this.showFooter = opts.showFooter!=void 0 ? opts.showFooter : true;
+        this.focusDate = null;
         this.init();
     }
-
     Datepicker.prototype = {
         constructor : Datepicker,
         monthDay:[31,28,31,30,31,30,31,31,30,31,30,31],
@@ -107,16 +101,19 @@
             this.minDate = minDate;
             this.maxDate = maxDate;
             this.date = (this.value&&parseDate(this.value))||parseDate(new Date());
+            this.focusDate = new Date(this.date);
             this.wrap = document.createElement('div');
             this.wrap.className = Datepicker.config.wrapCls;
             this.ele.appendChild(this.wrap);
             this.initDayPanel();
             this.initMonthPanel();
             this.initYearPanel();
+            this.initEvent();
         },
         getValue: function(format) {
             return dateFormat(this.date,format);
         },
+
         initDayPanel: function(){
             var date = this.date,dayPanelTpl = this.getDayPanelTpl(date),dayPanel=null;
             dayPanel = document.createElement('div');
@@ -137,11 +134,98 @@
             var date = this.date,year = date.getFullYear(), tpl = this.getYearPanelTpl(year);
             this.yearPanel = document.createElement('div');
             this.yearPanel.className = 'year wrap';
-            //this.yearPanel.style.display = "none";
+            this.yearPanel.style.display = "none";
             this.yearPanel.innerHTML = tpl;
             this.wrap.appendChild(this.yearPanel);
         },
+        initEvent: function(){
+            var that = this;
+            this.wrap.addEventListener('click',function(e){
+                var target = e.target,eventType = target.getAttribute('data-e');
+                if(eventType&&that[eventType+'Handler']) {
+                    that[eventType+'Handler'](target);
+                }else if(target.parentNode.parentNode.nodeName.toLowerCase()==='tbody'){
+                    that.tdHandle(target);
+                }
+                e.stopPropagation();
+                return false;
+            })
+        },
+        prevHandler: function(){
+            this.slideHandler(-1);
+        },
+        nextHandler: function(){
+            this.slideHandler(1);
+        },
+        slideHandler: function(step){
+            var showPanel = this.showPanel||'day';
+            switch (showPanel) {
+                case 'day':
+                    this.setFocusDate(null,step,null);
+                    this.dayPanel.innerHTML = this.getDayPanelTpl(this.focusDate);
+                    break;
+                case 'month':
+                    this.setFocusDate(step,null,null);
+                    this.monthPanel.innerHTML = this.getMonthPanelTpl(this.focusDate);
+                    break;
+                case 'year':
+                    var year = this.focusDate.getFullYear()+step*10;
+                    this.setFocusDate(year);
+                    this.yearPanel.innerHTML = this.getYearPanelTpl(year);
+                    break;
+            }
+        },
+        titleHandler: function(){
+            this.switchShowPanel(1);
+        },
+        switchShowPanel: function(dir){
+            var panelName = this.showPanel||'day',panelMap = dir?{day:'month',month:'year'}:{year:'month',month:'day'},
+                hidePanel=null,showPanel=null,fn;
+            if(!panelMap[panelName]){
+                return false;
+            }
+            fn = function(str){return str.charAt(0).toUpperCase() + str.substr(1)};
+            hidePanel = this[panelName+'Panel'];
+            showPanel = this[panelMap[panelName]+'Panel'];
+            hidePanel.innerHTML = this['get'+fn(panelName)+'PanelTpl'](this.focusDate);
+            showPanel.innerHTML = this['get'+fn(panelMap[panelName])+'PanelTpl'](this.focusDate);
+            hidePanel.style.display='none';
+            showPanel.style.display = 'block';
+            this.showPanel = panelMap[panelName];
+        },
+        todayHandle: function(){
+
+        },
+        tdHandle: function(target){
+            var type = this.showPanel||'day',value = target.innerHTML,cls = target.className;
+            if(cls.indexOf('disabled')!==-1){
+                return false;
+            }
+            switch(type){
+                case 'day':
+                    if(cls.indexOf('old')!==-1){
+                        this.setFocusDate(null,-1,value);
+                    }else if(cls.indexOf('new')!==-1) {
+                        this.setFocusDate(null,1,value);
+                    }else {
+                        this.setFocusDate(null,null,value);
+                    }
+                    this.setDate(this.focusDate);
+                    this.dayPanel.innerHTML = this.getDayPanelTpl(this.focusDate);
+                    break;
+                case 'month':
+                    value = target.getAttribute('data-m');
+                    this.setFocusDate(null,value,null);
+                    this.switchShowPanel(0);
+                    break;
+                case 'year':
+                    this.setFocusDate(value,null,null);
+                    this.switchShowPanel(0);
+                    break;
+            }
+        },
         getYearPanelTpl: function(year){
+            (typeof year==='object')&&(year = year.getFullYear());
             var tplConfig = Datepicker.tpl, locale = Datepicker.locale,
                 thead = tplConfig.thead, tbody = '', tfoot = this.showFooter ? tplConfig.tfoot : '',
                 minYear = this.minDate ? this.minDate.getFullYear() : 0,
@@ -149,16 +233,20 @@
                 yearcls = '',showStartYear = Math.floor(year/10)*10-1,len = 12,
                 title = showStartYear;
             for(var i=0;i<len;i++) {
-                yearcls = 'year';
-                if(showStartYear < minYear) yearcls +=' disabled';
-                if(showStartYear > maxYear) yearcls +=' disabled';
+                yearcls = '';
+                if(showStartYear < minYear||showStartYear > maxYear) yearcls +='disabled ';
+                if(showStartYear === this.date.getFullYear()) yearcls +='active ';
+                if(showStartYear === this.focusDate.getFullYear()) yearcls +='focused ';
                 (i%4===0) && (tbody += '<tr>');
-                tbody +='<td class="'+yearcls+'" data-m="'+showStartYear+'">'+showStartYear+'</td>';
-                (i%4===3) && (tbody += '<tr>');
+                tbody +='<td class="'+yearcls+'">'+showStartYear+'</td>';
+                (i%4===3) && (tbody += '</tr>');
                 showStartYear++;
             }
-            title +=' - ' + showStartYear;
-            return '<table><thead>'+thead.replace('COLSPAN','2').replace('TITLE',title)+'</thead><tbody>'+tbody+'</tbody></table>';
+            thead = thead.replace('PREV',title-1 < minYear ? 'prev disabled':'prev')
+                         .replace('NEXT',showStartYear > maxYear ? 'next disabled':'next');
+            title +=' - ' + (showStartYear-1);
+            thead = thead.replace('COLSPAN','2').replace('TITLE',title);
+            return '<table><thead>'+thead+'</thead><tbody>'+tbody+'</tbody></table>';
         },
         getMonthPanelTpl: function(date){
             var year = date.getFullYear(), month = date.getMonth(),
@@ -167,19 +255,22 @@
                 thead = tplConfig.thead, tbody = '', tfoot = this.showFooter ? tplConfig.tfoot : '',
                 minTimestamp = this.minDate ? this.minDate.getTime() : 0,
                 maxTimestamp = this.maxDate ? this.maxDate.getTime() : Infinity,
-                monthCls = '',timestamp=0;
+                monthCls = '',timestamp=0,focusMonth = this.focusDate.getMonth();
 
-            thead = thead.replace('COLSPAN','2').replace('TITLE',year + locale.YEAR);
+            thead = thead.replace('COLSPAN','2').replace('TITLE',year + locale.YEAR)
+                        .replace('PREV',(new Date(year,0,0)).getTime() < minTimestamp ? 'prev disabled':'prev')
+                        .replace('NEXT',(new Date(year+1,0,1)).getTime() > maxTimestamp ? 'next disabled':'next');
             for(var i=0,len = locale.MONTH.length;i<len;i++) {
-                monthCls = 'month';
+                monthCls = '';
                 timestamp = (new Date(year,i+1,0)).getTime();
                 if(timestamp < minTimestamp) monthCls += ' disabled';
                 timestamp = (new Date(year,i,1)).getTime();
                 if(timestamp > maxTimestamp) monthCls += ' disabled';
-                if(year===this.date.getFullYear()&&i===month) monthCls += ' actived';
+                if(year===this.date.getFullYear()&&i===this.date.getMonth()) monthCls += ' active';
+                if(i===focusMonth) monthCls +=' focused';
                 (i%4===0) && (tbody += '<tr>');
                 tbody +='<td class="'+monthCls+'" data-m="'+i+'">'+locale.MONTH[i]+'</td>';
-                (i%4===3) && (tbody += '<tr>');
+                (i%4===3) && (tbody += '</tr>');
             }
             tpl = tpl.replace('HEAD',thead).replace('BODY',tbody).replace('FOOT',tfoot.replace('COLSPAN',4));
             return tpl;
@@ -191,13 +282,17 @@
                 tpl = '<table><thead>HEAD</thead><tbody>BODY</tbody><tfoot>FOOT</tfoot></table>',
                 todayCls='';
 
-            thead = thead.replace('COLSPAN','5').replace('TITLE',year + locale.YEAR + locale.MONTH[month])+"<tr>";
+            thead = thead.replace('COLSPAN','5')
+                    .replace('TITLE',year + locale.YEAR + locale.MONTH[month])
+                    .replace("PREV",days.shift().disabled ? 'prev disabled':'prev')
+                    .replace("NEXT",days.pop().disabled ? 'next disabled':'next') +"<tr>";
+
             for(var i=0; i<7; i++){
                 thead +='<th>' + locale.WEEK[i] + '</th>';
             }
             thead +='</tr>';
             for(i=0; i<days.length;i++) {
-                todayCls = 'day';
+                todayCls = '';
                 (i%7===0) && (tbody += '<tr>');
                 days[i].disabled && (todayCls+=' disabled');
                 days[i].old && (todayCls +=' old');
@@ -212,24 +307,46 @@
         },
         getShowDays: function(date){
             var curDate = date || this.date, year = curDate.getFullYear(), month = curDate.getMonth(),
-                day = curDate.getDate(), timestamp = curDate.getTime(), start = (new Date(year,month,1)),
+                day = curDate.getDate(), start = (new Date(year,month,1)),
                 endTimestamp = (new Date(year,month+1,0)).getTime(),startTimestamp = start.getTime(),
                 minTimestamp = this.minDate ? this.minDate.getTime() : 0,
                 maxTimestamp = this.maxDate ? this.maxDate.getTime() : Infinity,
-                weekIndex = start.getDay(),dayArr = [], i = 0, item=null, now = new Date();
+                weekIndex = start.getDay(),dayArr = [], i = 1, item=null, now = new Date();
 
             startTs = startTimestamp - weekIndex * 86400000;
-            for(;i<42; i++) {
+            dayArr[0] = {disabled:(startTs - 86400000 < minTimestamp)};
+            for(;i<=42; i++) {
                 item = {value:new Date(startTs).getDate()};
                 if (startTs < minTimestamp || startTs > maxTimestamp) item.disabled = true;
-                if(startTs === timestamp) item.active = true;
+                if(startTs === this.date.getTime()) item.active = true;
                 if(startTs === new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime()) item.today = true;
                 if(startTs < startTimestamp) item.old = true;
                 if(startTs > endTimestamp) item.new = true;
                 dayArr[i] = item;
                 startTs += 86400000;
             }
+            dayArr[i] = {disabled : startTs > maxTimestamp};
             return dayArr;
+        },
+        setFocusDate: function(year,month,day){
+            var oYear = this.focusDate.getFullYear(),oMonth = this.focusDate.getMonth();
+            if(year==undefined) year = oYear;
+            if(month==undefined) month = oMonth;
+            if(day==undefined) day = 1;
+            if(year===1||year===-1)  year = oYear + year;
+            if(month===1||month===-1) month = oMonth + month;
+            if(month==-1) {
+                month = 11;
+                year -= 1;
+            }
+            if(month == 12) {
+                month = 0;
+                year += 1;
+            }
+            this.focusDate.setFullYear(year,month,day);
+        },
+        setDate: function(date){
+            this.date = date;
         }
     };
 
@@ -238,14 +355,10 @@
         MONTH: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
         YEAR:'年'
     };
-    Datepicker.config = {
-        wrapCls:'datepicker'
-    };
+    Datepicker.config = {wrapCls:'datepicker'};
     Datepicker.tpl = {
-        thead:'<tr><th class="prev">«</th><th colspan="COLSPAN" class="title">TITLE</th><th class="next">»</th></tr>',
+        thead:'<tr><th class="PREV" data-e="prev">«</th><th colspan="COLSPAN" class="title" data-e="title">TITLE</th><th class="NEXT" data-e="next">»</th></tr>',
         tfoot : '<tr><td colspan="COLSPAN"><span data-e="today" class="btn btn-xs btn-default">今天</span><span data-e="clear" class="btn btn-xs btn-default">清除</span></td></tr>'
     };
-
-
-    new Datepicker({ele:document.body,minDate:'2016-08-12'})
+    new Datepicker({ele:document.body})
 })();
