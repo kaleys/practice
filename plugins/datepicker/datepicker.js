@@ -80,33 +80,65 @@
         opts = opts||{};
         if(!opts.ele) return ;
         this.ele = opts.ele;
-        this.minDate = opts.minDate||this.ele.getAttribute('min');
-        this.maxDate = opts.maxDate||this.ele.getAttribute('max');
-        this.format = opts.format||"yyyy-mm-dd";
-        this.value = opts.value;
+        this.inline = opts.inline||false;
+        this.showRange = opts.showRange||true;
+        this.minDate = opts.minDate||this.ele.getAttribute('dp-min');
+        this.maxDate = opts.maxDate||this.ele.getAttribute('dp-max');
+        this.format = opts.format||"yyyy/mm/dd";
+        this.value = opts.value||this.ele.getAttribute('dp-v');
+        this.clear = opts.clear||true;
         this.date = null;
-        this.showFooter = opts.showFooter!=void 0 ? opts.showFooter : true;
         this.focusDate = null;
-        this.init();
+        this.init().call(this);
     }
     Datepicker.prototype = {
         constructor : Datepicker,
         monthDay:[31,28,31,30,31,30,31,31,30,31,30,31],
         init: function(){
-            var el = this.ele,
-                minDate = this.minDate ? parseDate(this.minDate) : null,
-                maxDate = this.maxDate ? parseDate(this.maxDate) : null;
-            this.minDate = minDate;
-            this.maxDate = maxDate;
-            this.date = (this.value&&parseDate(this.value))||parseDate(new Date());
-            this.focusDate = new Date(this.date);
-            this.wrap = document.createElement('div');
-            this.wrap.className = Datepicker.config.wrapCls;
-            this.ele.appendChild(this.wrap);
-            this.initPanel();
-            this.initEvent();
+            var init = false;
+            return function(){
+                var el = this.ele,div,that = this,
+                    minDate = this.minDate ? parseDate(this.minDate) : null,
+                    maxDate = this.maxDate ? parseDate(this.maxDate) : null;
+                this.inputEl = this.ele.querySelector('.input')||this.ele;
+                //如果最小日期比最大日期要大，要纠正
+                if(minDate&&maxDate&&minDate>maxDate){
+                    this.minDate = maxDate;
+                    this.maxDate = minDate;
+                }else {
+                    this.minDate = minDate;
+                    this.maxDate = maxDate;
+                }
+                this.date = (this.value&&parseDate(this.value))||parseDate(new Date());
+                this.focusDate = new Date(this.date);
+                this.checkDateIsValid();
+                div = document.createElement('div');
+                div.className = Datepicker.config.wrapCls;
+                if(this.inline) {
+                    this.ele.appendChild(div);
+                    this.wrap = div;
+                }else {
+                    this.ele.parentNode.classList.add('datepicker-wrap');
+                    var top = this.ele.offsetHeight + this.ele.offsetTop+5,left = this.ele.offsetLeft;
+                    div.style.top = top +"px";
+                    div.style.left = left + "px";
+                    this.ele.parentNode.appendChild(div);
+                }
+                this.wrap = div;
+                this.initPanel();
+                this.initEvent();
+                
+
+                if(!init) {
+                    document.addEventListener('click',function(){
+                        Datepicker.config.curItem&&Datepicker.config.curItem.hide();
+                    });
+                    init = true;
+                }
+            }
         },
         getValue: function(format) {
+            format = format||this.format;
             return dateFormat(this.date,format);
         },
         initPanel: function(){
@@ -115,14 +147,14 @@
                 type = map[i];
                 div = document.createElement('div');
                 div.className = type+' wrap';
-                (type!=='day')&&(div.style.display='none');
+                (type!=='day'||(type==='day'&&!this.inline))&&(div.style.display='none');
                 div.innerHTML =  this['get'+capitalize(type)+'PanelTpl'](date);
                 this.wrap.appendChild(div);
                 this[type+'Panel'] = div;
             }
         },
         initEvent: function(){
-            var that = this;
+            var that = this,wrap;
             this.wrap.addEventListener('click',function(e){
                 var target = e.target,eventType = target.getAttribute('data-e');
                 if(eventType&&that[eventType+'Handler']) {
@@ -132,7 +164,17 @@
                 }
                 e.stopPropagation();
                 return false;
-            })
+            });
+            if(!this.inline){
+                this.ele.addEventListener('click',function(e){
+                    if(this.show){
+                        that.hide();
+                    }else{
+                        that.show();
+                    }
+                    e.stopPropagation();
+                })
+            }
         },
         prevHandler: function(){
             this.slideHandler(-1);
@@ -178,6 +220,13 @@
         todayHandler: function(){
             this.setDateFromOut(new Date());
         },
+        clearHandler: function(){
+            if(this.inputEl.nodeName.toLowerCase()=='input'){
+                this.inputEl.value = '';
+            }else {
+                this.inputEl.innerHTML = '';
+            }
+        },
         tdHandler: function(target){
             var type = this.showPanel||'day',value = target.innerHTML,cls = target.className,isSuccess;
             if(cls.indexOf('disabled')!==-1){
@@ -210,13 +259,12 @@
         },
         getYearPanelTpl: function(year){
             year = year||this.focusDate.getFullYear();
-            var tplConfig = Datepicker.tpl, locale = Datepicker.locale,
-                thead = tplConfig.thead, tbody = '', tfoot = this.showFooter ? tplConfig.tfoot : '',
+            var tplConfig = Datepicker.tpl, tbody = '',
                 minYear = this.minDate ? this.minDate.getFullYear() : 0,
                 maxYear = this.maxDate ? this.maxDate.getFullYear() : Infinity,
-                yearcls = '',showStartYear = Math.floor(year/10)*10-1,len = 12,
+                yearcls = '',showStartYear = Math.floor(year/10)*10-1,
                 title = showStartYear;
-            for(var i=0;i<len;i++) {
+            for(var i=0; i<12; i++) {
                 yearcls = '';
                 if(showStartYear < minYear||showStartYear > maxYear) yearcls +='disabled ';
                 if(showStartYear === this.date.getFullYear()) yearcls +='active ';
@@ -226,93 +274,86 @@
                 (i%4===3) && (tbody += '</tr>');
                 showStartYear++;
             }
-            thead = thead.replace('PREV',title-1 < minYear ? 'prev disabled':'prev')
-                         .replace('NEXT',showStartYear > maxYear ? 'next disabled':'next');
-            title +=' - ' + (showStartYear-1);
-            thead = thead.replace('COLSPAN','2').replace('TITLE',title);
-            return '<table><thead>'+thead+'</thead><tbody>'+tbody+'</tbody></table>';
+            var statusArr = [!!(title-1 < minYear),!!(showStartYear > maxYear)];
+            return this.getPanelHeadTpl('year',statusArr,title+'-'+(showStartYear-1)).replace('BODY',tbody);
         },
-        getMonthPanelTpl: function(date){
+        getMonthPanelTpl : function(date) {
             var curDate = date||this.focusDate,year = curDate.getFullYear(), month = curDate.getMonth(),
-                tplConfig = Datepicker.tpl, locale = Datepicker.locale,
-                tpl = '<table><thead>HEAD</thead><tbody>BODY</tbody><tfoot>FOOT</tfoot></table>',
-                thead = tplConfig.thead, tbody = '', tfoot = this.showFooter ? tplConfig.tfoot : '',
+                locale = Datepicker.locale, dateArr = locale.MONTH, tbody='',
                 minTimestamp = this.minDate ? this.minDate.getTime() : 0,
                 maxTimestamp = this.maxDate ? this.maxDate.getTime() : Infinity,
-                monthCls = '',timestamp=0,focusMonth = this.focusDate.getMonth();
-
-            thead = thead.replace('COLSPAN','2').replace('TITLE',year + locale.YEAR)
-                        .replace('PREV',(new Date(year,0,0)).getTime() < minTimestamp ? 'prev disabled':'prev')
-                        .replace('NEXT',(new Date(year+1,0,1)).getTime() > maxTimestamp ? 'next disabled':'next');
-            for(var i=0,len = locale.MONTH.length;i<len;i++) {
-                monthCls = '';
-                timestamp = (new Date(year,i+1,0)).getTime();
-                if(timestamp < minTimestamp) monthCls += ' disabled';
-                timestamp = (new Date(year,i,1)).getTime();
-                if(timestamp > maxTimestamp) monthCls += ' disabled';
-                if(year===this.date.getFullYear()&&i===this.date.getMonth()) monthCls += ' active';
-                if(i===focusMonth) monthCls +=' focused';
-                (i%4===0) && (tbody += '<tr>');
-                tbody +='<td class="'+monthCls+'" data-m="'+i+'">'+locale.MONTH[i]+'</td>';
-                (i%4===3) && (tbody += '</tr>');
-            }
-            tpl = tpl.replace('HEAD',thead).replace('BODY',tbody).replace('FOOT',tfoot.replace('COLSPAN',4));
-            return tpl;
-        },
+                cls = '';
+                for(var i=0,len = dateArr.length; i<len; i++) {
+                    cls = ''
+                    if((new Date(year,i+1,0)).getTime() < minTimestamp||
+                        (new Date(year,i,1)).getTime() > maxTimestamp
+                      ){
+                        cls +=' disabled';
+                    }
+                    if(year === this.date.getFullYear() && i === this.date.getMonth()) cls +='active';
+                    if(i===this.focusDate.getMonth()) cls +=' focused';
+                    (i%4===0) && (tbody += '<tr>');
+                    tbody +='<td class="'+cls+'" data-m="'+i+'">'+locale.MONTH[i]+'</td>';
+                    (i%4===3) && (tbody += '</tr>');
+                }
+                var canPrev = !!((new Date(year,0,0)).getTime() < minTimestamp);
+                var canNext = !!((new Date(year+1,0,1)).getTime() > maxTimestamp)
+                return this.getPanelHeadTpl('month',[canPrev,canNext],year + locale.YEAR).replace('BODY',tbody);
+        },        
         getDayPanelTpl: function(date){
-            var curDate = date||this.focusDate,
-                year = curDate.getFullYear(), month = curDate.getMonth(), days = this.getShowDays(curDate),
-                tplConfig = Datepicker.tpl, locale = Datepicker.locale,
-                thead = tplConfig.thead, tbody = '', tfoot = this.showFooter ? tplConfig.tfoot : '',
-                tpl = '<table><thead>HEAD</thead><tbody>BODY</tbody><tfoot>FOOT</tfoot></table>',
-                todayCls='';
-
-            thead = thead.replace('COLSPAN','5')
-                    .replace('TITLE',year + locale.YEAR + locale.MONTH[month])
-                    .replace("PREV",days.shift().disabled ? 'prev disabled':'prev')
-                    .replace("NEXT",days.pop().disabled ? 'next disabled':'next') +"<tr>";
-
-            for(var i=0; i<7; i++){
-                thead +='<th>' + locale.WEEK[i] + '</th>';
-            }
-            thead +='</tr>';
-            for(i=0; i<days.length;i++) {
-                todayCls = '';
+            var curDate = date||this.focusDate,tpl = '',now = parseDate(new Date()),
+                year = curDate.getFullYear(),month = curDate.getMonth(),
+                locale = Datepicker.locale, tbody = '', 
+                minTimestamp = this.minDate ? this.minDate.getTime() : 0,
+                maxTimestamp = this.maxDate ? this.maxDate.getTime() : Infinity,
+                startTimestamp = (new Date(year,month,1)).getTime(), 
+                endTimestamp = (new Date(year,month+1,0)).getTime(),
+                daySeconds = 86400000, 
+                startTs = startTimestamp - curDate.getDay() * daySeconds,
+                statusArr = [!!(startTs - daySeconds < minTimestamp)],cls='';
+            for(var i=0; i<=42; i++) {
+                cls='';
                 (i%7===0) && (tbody += '<tr>');
-                days[i].disabled && (todayCls+=' disabled');
-                days[i].old && (todayCls +=' old');
-                days[i].today && (todayCls+=' today');
-                days[i].active && (todayCls+=' active');
-                days[i].new && (todayCls +=' new');
-                tbody += '<td class="'+ todayCls +'">'+days[i].value+'</td>';
+                item = {value:new Date(startTs).getDate()};
+                if (startTs < minTimestamp || startTs > maxTimestamp){
+                    cls +=' disabled';
+                }else {
+                    if(this.showRange) cls+=' range';
+                };
+                if(startTs === this.focusDate.getTime()) cls += ' active';
+                if(startTs === now.getTime()) cls += ' today'
+                if(startTs < startTimestamp) {
+                    cls += ' old'
+                }else if(startTs > endTimestamp){
+                    cls += ' new'
+                }
+                tbody +='<td class="'+cls+'">'+new Date(startTs).getDate()+'</td>';
+                startTs += 86400000;
                 (i%7===6) && (tbody += '</tr>');
             }
-            tpl = tpl.replace('HEAD',thead).replace('BODY',tbody).replace('FOOT',tfoot.replace('COLSPAN',7));
-            return tpl;
+            statusArr.push(!!(startTs > maxTimestamp))
+            tpl = this.getPanelHeadTpl('day',statusArr, curDate.getFullYear() + locale.YEAR + locale.MONTH[curDate.getMonth()]);
+            return tpl.replace('BODY',tbody);
         },
-        getShowDays: function(date){
-            var curDate = date || this.date, year = curDate.getFullYear(), month = curDate.getMonth(),
-                day = curDate.getDate(), start = (new Date(year,month,1)),
-                endTimestamp = (new Date(year,month+1,0)).getTime(),startTimestamp = start.getTime(),
-                minTimestamp = this.minDate ? this.minDate.getTime() : 0,
-                maxTimestamp = this.maxDate ? this.maxDate.getTime() : Infinity,
-                weekIndex = start.getDay(),dayArr = [], i = 1, item=null, now = new Date();
-
-            startTs = startTimestamp - weekIndex * 86400000;
-            dayArr[0] = {disabled:(startTs - 86400000 < minTimestamp)};
-
-            for(;i<=42; i++) {
-                item = {value:new Date(startTs).getDate()};
-                if (startTs < minTimestamp || startTs > maxTimestamp) item.disabled = true;
-                if(startTs === this.focusDate.getTime()) item.active = true;
-                if(startTs === new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime()) item.today = true;
-                if(startTs < startTimestamp) item.old = true;
-                if(startTs > endTimestamp) item.new = true;
-                dayArr[i] = item;
-                startTs += 86400000;
+        getPanelHeadTpl:function(type,statusArr,title){
+            var locale = Datepicker.locale, colspan = type==='day' ? 7 : 4, thead = '', tfoot = '',
+                tpl = '<table><thead>HEAD</thead><tbody>BODY</tbody><tfoot>FOOT</tfoot></table>',
+                prevCls = statusArr[0] ? 'prev disabled':'prev',
+                nextCls = statusArr[1] ? 'next disabled':'next';
+            thead = '<tr><th class="'+prevCls+'" data-e="prev">«</th><th colspan="'+ (colspan-2) +'" class="title" data-e="title">'+title+'</th><th class="'+nextCls+'" data-e="next">»</th></tr>';
+            if(type==='day') {
+                thead +='<tr>';
+                for(var i=0; i<colspan; i++){
+                    thead +='<th>' + locale.WEEK[i] + '</th>';
+                }
+                thead +='</tr>';
             }
-            dayArr[i] = {disabled : startTs > maxTimestamp};
-            return dayArr;
+            tfoot ='<tr><td colspan="'+colspan+'"><span data-e="today" class="btn btn-xs btn-default">'+locale.today+'</span>';
+            if(type!=='year'&&this.clear&&!this.inline){
+                tfoot +='<span data-e="clear" class="btn btn-xs btn-default">'+locale.clear+'</span>';
+            }
+            tfoot +='</td></tr>'
+            return tpl.replace('HEAD',thead).replace('FOOT',tfoot);
         },
         setFocusDate: function(year,month,day){
             var oYear = this.focusDate.getFullYear(),oMonth = this.focusDate.getMonth(),date = parseDate(new Date(0));
@@ -339,8 +380,19 @@
             this.focusDate = date;
             return true;
         },
-        setDate: function(date){
+        setDate: function(date,changeFocus){
             this.date = date;
+            if(changeFocus){
+                this.focusDate = new Date(date);
+            }
+            if(!this.inline) {
+                if(this.inputEl.nodeName.toLowerCase()==='input'){
+                    this.inputEl.value = this.getValue();
+                }else {
+                    this.inputEl.innerHTML = this.getValue();
+                }
+                this.dayPanel&&this.hide();
+            }
         },
         setDateFromOut: function(date){
             date = parseDate(new Date());
@@ -350,18 +402,88 @@
             this.focusDate = date;
             this.dayPanel.innerHTML = this.getDayPanelTpl();
             this.setDate(date);
+        },
+        show: function(){
+            var showItem = Datepicker.config.curItem;
+            if(showItem&&showItem !== this){
+                showItem.hide();
+            }
+            this.dayPanel.style.display="block";
+            this.ele.show = true;
+            Datepicker.config.curItem = this;
+        },
+        hide: function(){
+            var panel = this.showPanel||'day';
+            this[panel+'Panel'].style.display="none";
+            this.showPanel = 'day';
+            this.ele.show = false;
+            Datepicker.config.curItem = null;
+            if(this.focusDate.getTime()!==this.date.getTime()){
+                this.focusDate = new Date(this.date);
+                this.dayPanel.innerHTML = this.getDayPanelTpl();
+            }
+        },
+        checkDateIsValid: function(){
+            if(this.minDate&&this.minDate.getTime()>this.date.getTime()){
+                this.setDate(this.minDate,true);
+            }
+            if(this.maxDate&&this.maxDate.getTime()<this.date.getTime()){
+                this.setDate(this.maxDate,true);
+            }
+        },
+        setDateRange: function(range){
+            var refreshPanel = false;
+            if(range.start) {
+                refreshPanel = true;
+                this.minDate = parseDate(range.start);
+            }
+            if(range.end) {
+                refreshPanel = true;
+                this.maxDate = parseDate(range.end);
+            }
+            this.checkDateIsValid()
+            if(refreshPanel) {
+                this.dayPanel.innerHTML = this.getDayPanelTpl();
+            }
         }
     };
 
     Datepicker.locale = {
         WEEK: ['日','一','二','三','四','五','六'],
         MONTH: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
-        YEAR:'年'
+        YEAR:'年',
+        today:' 今天',
+        clear:'清除'
     };
-    Datepicker.config = {wrapCls:'datepicker'};
-    Datepicker.tpl = {
-        thead:'<tr><th class="PREV" data-e="prev">«</th><th colspan="COLSPAN" class="title" data-e="title">TITLE</th><th class="NEXT" data-e="next">»</th></tr>',
-        tfoot : '<tr><td colspan="COLSPAN"><span data-e="today" class="btn btn-xs btn-default">今天</span><span data-e="clear" class="btn btn-xs btn-default">清除</span></td></tr>'
-    };
-    new Datepicker({ele:document.body})
+    Datepicker.config = {wrapCls:'datepicker',curItem:null};
+
+    function RangeDatepicker(options){
+        this.ele = options.ele;
+        this.inputEl = this.ele.querySelector('.input')||this.ele;
+        if(!this.ele) {
+            return false;
+        }
+        this.minDate = options.minDate || this.ele.getAttribute('dp-min');
+        this.maxDate = options.maxDate || this.ele.getAttribute('dp-max');
+        this.startDate = options.startDate || this.ele.getAttribute('dp-start') || new Date();
+        this.endDate = options.endDate || this.ele.getAttribute('dp-end')|| new Date();
+        this.init();
+    }
+    RangeDatepicker.prototype = {
+        constructor: RangeDatepicker,
+        init: function(){
+            this.startDate = parseDate(this.startDate);
+            this.endDate = parseDate(this.endDate);
+            
+        }
+    }
+
+    //new Datepicker({ele:document.body,inline:true});
+    new Datepicker({ele:document.getElementById('date'),minDate:'2016-08-01',maxDate:'2016-09-05'});
+    //new Datepicker({ele:document.getElementById('date1')});
+
+
+    document.getElementById('test-btn').addEventListener('click',function(e){
+        e.stopPropagation();
+    })
 })();

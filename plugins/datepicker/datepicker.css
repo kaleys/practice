@@ -1,6 +1,13 @@
 body {
     font-family: "微软雅黑";
 }
+.datepicker-wrap {
+    position: relative;
+}
+.datepicker-wrap .datepicker {
+    position: absolute;
+    z-index: 99;
+}
 .datepicker {
     background: #fff;
     width: 250px;
@@ -29,6 +36,10 @@ body {
 .datepicker .old,
 .datepicker .new {
     color: #777;
+}
+.datepicker .range{
+    background: #ebf4f8;
+    border-radius: 0;
 }
 .datepicker td.today {
     background: #5bc0de;
@@ -71,4 +82,29 @@ body {
 .datepicker .month tbody td,
 .datepicker .year td{
     padding: 20px 3px;
+}
+
+.datepicker-input {
+    position: relative;
+    border: 1px solid #ccc;
+    padding: 6px 20px 6px 30px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.datepicker-input .fa-calendar {
+    position: absolute;
+    left: 12px;
+    top: 9px;
+}
+.datepicker-input .caret{
+    position: absolute;
+    right: 12px;
+    top: 14px;
+}
+.datepicker-input .input {
+    display: inline-block;
+    width: 100%;
+    border: none;
+    outline: none;
+    
 }
