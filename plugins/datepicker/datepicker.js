@@ -2,6 +2,7 @@
  * Created by Administrator on 2016-08-25.
  */
 (function(){
+    function capitalize(str){return str.charAt(0).toUpperCase() + str.substr(1)};
     function toInt(str) {
         return parseInt(str, 10) || 0
     }
@@ -91,9 +92,6 @@
     Datepicker.prototype = {
         constructor : Datepicker,
         monthDay:[31,28,31,30,31,30,31,31,30,31,30,31],
-        isLeap:function(year){
-            return year%100==0?(year%400==0?1:0):(year%4==0?1:0);
-        },
         init: function(){
             var el = this.ele,
                 minDate = this.minDate ? parseDate(this.minDate) : null,
@@ -105,38 +103,23 @@
             this.wrap = document.createElement('div');
             this.wrap.className = Datepicker.config.wrapCls;
             this.ele.appendChild(this.wrap);
-            this.initDayPanel();
-            this.initMonthPanel();
-            this.initYearPanel();
+            this.initPanel();
             this.initEvent();
         },
         getValue: function(format) {
             return dateFormat(this.date,format);
         },
-
-        initDayPanel: function(){
-            var date = this.date,dayPanelTpl = this.getDayPanelTpl(date),dayPanel=null;
-            dayPanel = document.createElement('div');
-            dayPanel.className = 'day wrap';
-            dayPanel.innerHTML = dayPanelTpl;
-            this.wrap.appendChild(dayPanel);
-            this.dayPanel = dayPanel;
-        },
-        initMonthPanel: function(){
-            var date = this.date, monthPanelTpl = this.getMonthPanelTpl(date);
-            this.monthPanel = document.createElement('div');
-            this.monthPanel.className = 'month wrap';
-            this.monthPanel.style.display = "none";
-            this.monthPanel.innerHTML = monthPanelTpl;
-            this.wrap.appendChild(this.monthPanel);
-        },
-        initYearPanel: function(){
-            var date = this.date,year = date.getFullYear(), tpl = this.getYearPanelTpl(year);
-            this.yearPanel = document.createElement('div');
-            this.yearPanel.className = 'year wrap';
-            this.yearPanel.style.display = "none";
-            this.yearPanel.innerHTML = tpl;
-            this.wrap.appendChild(this.yearPanel);
+        initPanel: function(){
+            var date = this.date,year = date.getFullYear(),div,map=['day','month','year'],type;
+            for(var i=0,len=map.length;i<len;i++){
+                type = map[i];
+                div = document.createElement('div');
+                div.className = type+' wrap';
+                (type!=='day')&&(div.style.display='none');
+                div.innerHTML =  this['get'+capitalize(type)+'PanelTpl'](date);
+                this.wrap.appendChild(div);
+                this[type+'Panel'] = div;
+            }
         },
         initEvent: function(){
             var that = this;
@@ -145,7 +128,7 @@
                 if(eventType&&that[eventType+'Handler']) {
                     that[eventType+'Handler'](target);
                 }else if(target.parentNode.parentNode.nodeName.toLowerCase()==='tbody'){
-                    that.tdHandle(target);
+                    that.tdHandler(target);
                 }
                 e.stopPropagation();
                 return false;
@@ -180,38 +163,39 @@
         },
         switchShowPanel: function(dir){
             var panelName = this.showPanel||'day',panelMap = dir?{day:'month',month:'year'}:{year:'month',month:'day'},
-                hidePanel=null,showPanel=null,fn;
+                hidePanel=null,showPanel=null;
             if(!panelMap[panelName]){
                 return false;
             }
-            fn = function(str){return str.charAt(0).toUpperCase() + str.substr(1)};
             hidePanel = this[panelName+'Panel'];
             showPanel = this[panelMap[panelName]+'Panel'];
-            hidePanel.innerHTML = this['get'+fn(panelName)+'PanelTpl'](this.focusDate);
-            showPanel.innerHTML = this['get'+fn(panelMap[panelName])+'PanelTpl'](this.focusDate);
+            hidePanel.innerHTML = this['get'+capitalize(panelName)+'PanelTpl']();
+            showPanel.innerHTML = this['get'+capitalize(panelMap[panelName])+'PanelTpl']();
             hidePanel.style.display='none';
             showPanel.style.display = 'block';
             this.showPanel = panelMap[panelName];
         },
-        todayHandle: function(){
-
+        todayHandler: function(){
+            this.setDateFromOut(new Date());
         },
-        tdHandle: function(target){
-            var type = this.showPanel||'day',value = target.innerHTML,cls = target.className;
+        tdHandler: function(target){
+            var type = this.showPanel||'day',value = target.innerHTML,cls = target.className,isSuccess;
             if(cls.indexOf('disabled')!==-1){
                 return false;
             }
             switch(type){
                 case 'day':
                     if(cls.indexOf('old')!==-1){
-                        this.setFocusDate(null,-1,value);
+                        isSuccess = this.setFocusDate(null,-1,value);
                     }else if(cls.indexOf('new')!==-1) {
-                        this.setFocusDate(null,1,value);
+                        isSuccess = this.setFocusDate(null,1,value);
                     }else {
-                        this.setFocusDate(null,null,value);
+                        isSuccess = this.setFocusDate(null,null,value);
                     }
-                    this.setDate(this.focusDate);
-                    this.dayPanel.innerHTML = this.getDayPanelTpl(this.focusDate);
+                    if(isSuccess){
+                        this.setDate(this.focusDate);
+                        this.dayPanel.innerHTML = this.getDayPanelTpl();
+                    }
                     break;
                 case 'month':
                     value = target.getAttribute('data-m');
@@ -225,7 +209,7 @@
             }
         },
         getYearPanelTpl: function(year){
-            (typeof year==='object')&&(year = year.getFullYear());
+            year = year||this.focusDate.getFullYear();
             var tplConfig = Datepicker.tpl, locale = Datepicker.locale,
                 thead = tplConfig.thead, tbody = '', tfoot = this.showFooter ? tplConfig.tfoot : '',
                 minYear = this.minDate ? this.minDate.getFullYear() : 0,
@@ -249,7 +233,7 @@
             return '<table><thead>'+thead+'</thead><tbody>'+tbody+'</tbody></table>';
         },
         getMonthPanelTpl: function(date){
-            var year = date.getFullYear(), month = date.getMonth(),
+            var curDate = date||this.focusDate,year = curDate.getFullYear(), month = curDate.getMonth(),
                 tplConfig = Datepicker.tpl, locale = Datepicker.locale,
                 tpl = '<table><thead>HEAD</thead><tbody>BODY</tbody><tfoot>FOOT</tfoot></table>',
                 thead = tplConfig.thead, tbody = '', tfoot = this.showFooter ? tplConfig.tfoot : '',
@@ -276,7 +260,8 @@
             return tpl;
         },
         getDayPanelTpl: function(date){
-            var year = date.getFullYear(), month = date.getMonth(), days = this.getShowDays(date),
+            var curDate = date||this.focusDate,
+                year = curDate.getFullYear(), month = curDate.getMonth(), days = this.getShowDays(curDate),
                 tplConfig = Datepicker.tpl, locale = Datepicker.locale,
                 thead = tplConfig.thead, tbody = '', tfoot = this.showFooter ? tplConfig.tfoot : '',
                 tpl = '<table><thead>HEAD</thead><tbody>BODY</tbody><tfoot>FOOT</tfoot></table>',
@@ -315,10 +300,11 @@
 
             startTs = startTimestamp - weekIndex * 86400000;
             dayArr[0] = {disabled:(startTs - 86400000 < minTimestamp)};
+
             for(;i<=42; i++) {
                 item = {value:new Date(startTs).getDate()};
                 if (startTs < minTimestamp || startTs > maxTimestamp) item.disabled = true;
-                if(startTs === this.date.getTime()) item.active = true;
+                if(startTs === this.focusDate.getTime()) item.active = true;
                 if(startTs === new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime()) item.today = true;
                 if(startTs < startTimestamp) item.old = true;
                 if(startTs > endTimestamp) item.new = true;
@@ -329,24 +315,41 @@
             return dayArr;
         },
         setFocusDate: function(year,month,day){
-            var oYear = this.focusDate.getFullYear(),oMonth = this.focusDate.getMonth();
-            if(year==undefined) year = oYear;
-            if(month==undefined) month = oMonth;
-            if(day==undefined) day = 1;
-            if(year===1||year===-1)  year = oYear + year;
-            if(month===1||month===-1) month = oMonth + month;
-            if(month==-1) {
-                month = 11;
-                year -= 1;
+            var oYear = this.focusDate.getFullYear(),oMonth = this.focusDate.getMonth(),date = parseDate(new Date(0));
+            if(!year){
+                year = oYear;
+            }else if(year===1||year===-1) {
+                year = oYear + year;
             }
-            if(month == 12) {
-                month = 0;
-                year += 1;
+            if(!month&&month!==0){
+                month = oMonth;
+            }else if(month===1||month===-1){
+                month = oMonth + month;
             }
-            this.focusDate.setFullYear(year,month,day);
+            if(!day&&day!==0) day = this.focusDate.getDate();
+            if(day===31||(month===1&&day>=29)) {
+                month+=1;
+                day = 0;
+            }
+
+            date.setFullYear(year,month,day);
+            if(date.getTime()===this.focusDate.getTime()){
+                return false;
+            }
+            this.focusDate = date;
+            return true;
         },
         setDate: function(date){
             this.date = date;
+        },
+        setDateFromOut: function(date){
+            date = parseDate(new Date());
+            if(this.focusDate.getTime()===date.getTime()){
+                return false;
+            }
+            this.focusDate = date;
+            this.dayPanel.innerHTML = this.getDayPanelTpl();
+            this.setDate(date);
         }
     };
 
