@@ -49,6 +49,10 @@ gulp.task("less-wc", lessTask(weChartLessPath, './wechart'));
 gulp.task('wechart', ['httpServer'], function () {
     return gulp.watch(weChartLessPath, ['less-wc']);
 });
+gulp.task('temp',lessTask('./plugins/datepicker/datepicker.less','./plugins/datepicker/'))
+gulp.task('default',function(){
+    return gulp.watch('./plugins/datepicker/datepicker.less',['temp'])
+})
 
 
 
