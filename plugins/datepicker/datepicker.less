@@ -1,6 +1,6 @@
 @com-name:datepicker;
 @bg: #fff;
-@shadow:rgba(0,0,0,.5);
+@shadow:0 6px 12px rgba(0, 0, 0, .175);
 @radius: 4px;
 @paddingSize:5px;
 @tdHoverBg:#eee;
@@ -19,17 +19,18 @@ body {
 	position: relative;
 	.@{com-name}{
 		position: absolute;
+		display: none;
 		z-index: 99;
 	}
 }
 .@{com-name}{
 	background: @bg;
     width: 220px;
-    box-shadow: 0 0 5px @shadow;
+    box-shadow: @shadow;
+    border: 1px solid @borderC;
     border-radius: @radius;
     .wrap {
     	padding: 5px;
-    	height: 262px;
     }
 
     table {
@@ -140,24 +141,40 @@ body {
 
 	.range-@{com-name}{
 		position: absolute;
+		display: none;
 		z-index: 99;
+		&.daterange-show {
+			@media (min-width:602px){
+				width: 602px;
+			}
+		}
+		
 	}
 }
 
 .range-@{com-name} {
-	padding: 10px;
+	padding: 0 10px 10px;
     background: @bg;
-    box-shadow: 0 0 5px rgba(0,0,0,.5);
+    box-shadow: @shadow;
+    border: 1px solid @borderC;
+    border-radius: @radius;
 	.@{com-name} {
-		display: inline-block;
-    	margin-right: 10px;
+		float: left;
+		display: none;
+    	margin: 10px 10px 0 0;
     	vertical-align: top;
     	border: 1px solid @borderC;
     	box-shadow: none;
 	}
+	&.daterange-show{
+		.@{com-name}{
+			display: block;
+		}
+	}
 
 	.shortcut{
-		display: inline-block;
+		margin-top: 10px;
+		float: left;
 		width: 120px;
 		ul {
 	    	list-style:none;

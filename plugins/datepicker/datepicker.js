@@ -13,6 +13,16 @@
         }
         return false;
     }
+    function toggleEle(eles,show){
+        var status = show ? 'block' : 'none';
+        if(!eles[0]){
+            eles.style.display = status;
+            return;
+        }
+        for(var i=0,len=eles.length;i<len;i++) {
+            eles[i].style.display = status; 
+        }
+    }
     function extend() {
         var options, name, src, copy,
             target = arguments[ 0 ] || {},
@@ -66,12 +76,15 @@
                 var trimDate = date.replace(/ /g,''),
                     dateArray = [],
                     oDate = new Date(0);
-                trimDate.replace(/^(\d+)\D(\d+)\D(\d+)/,function(_,a,b,c){
-                    dateArray = [a,b-1,c];
-                    return '';
-                });
-                oDate.setFullYear.apply(oDate,dateArray);
-                date = oDate;
+                if(/^(\d{4})\D(\d{1,2})\D(\d{1,2})$/.test(trimDate)){
+                    trimDate.replace(/^(\d+)\D(\d+)\D(\d+)/,function(_,a,b,c){
+                        dateArray = [a,b-1,c];
+                        return '';
+                    });
+
+                    oDate.setFullYear.apply(oDate,dateArray);
+                    date = oDate;
+                }
             }
         }
         if(typeof date=='number'){
@@ -112,6 +125,13 @@
         return text;
     }
     function loop(){};
+
+    var globalPanel;
+    function clearPanel(e){
+        if(globalPanel) {
+            globalPanel.hide();
+        }
+    }
     function Datepicker(opts){
         opts = opts||{};
         if(!opts.ele) return ;
@@ -132,52 +152,43 @@
             focusDate: null,        //点击datepicker时记录操作日期
             onclicked: loop,        //选中日期后的回调
         },opts)
-        this.init().call(this);
+        this.init();
     }
     Datepicker.prototype = {
         constructor : Datepicker,
         monthDay:[31,28,31,30,31,30,31,31,30,31,30,31],
         init: function(){
-            var init = false;
-            return function(){
-                var el = this.ele,div,that = this,
-                    minDate = this.minDate ? parseDate(this.minDate) : null,
-                    maxDate = this.maxDate ? parseDate(this.maxDate) : null;
-                this.inputEl = this.ele.querySelector('.input')||this.ele;
-                //如果最小日期比最大日期要大，要纠正
-                if(minDate&&maxDate&&minDate>maxDate){
-                    this.minDate = maxDate;
-                    this.maxDate = minDate;
-                }else {
-                    this.minDate = minDate;
-                    this.maxDate = maxDate;
-                }
-                this.date = (this.value&&parseDate(this.value))||parseDate(new Date());
-                this.focusDate = new Date(this.date);
-                this.checkDateIsValid();
-                div = document.createElement('div');
-                div.className = Datepicker.config.wrapCls;
-                if(this.inline) {
-                    this.ele.appendChild(div);
-                    this.wrap = div;
-                }else {
-                    this.ele.classList.add('datepicker-wrap');
-                    var top = this.ele.offsetHeight + 5, left = 0;
-                    div.style.top = top +"px";
-                    div.style.left = left + "px";
-                    this.ele.appendChild(div);
-                    this.setValue(this.getValue())
-                }
-                this.wrap = div;
-                this.initPanel();
-                this.initEvent();
-                if(!init) {
-                    document.addEventListener('click',function(){
-                        Datepicker.config.curItem&&Datepicker.config.curItem.hide();
-                    });
-                    init = true;
-                }
+            var el = this.ele,div,that = this,
+                minDate = this.minDate ? parseDate(this.minDate) : null,
+                maxDate = this.maxDate ? parseDate(this.maxDate) : null;
+            this.inputEl = this.ele.querySelector('.input')||this.ele;
+            //如果最小日期比最大日期要大，要纠正
+            if(minDate&&maxDate&&minDate>maxDate){
+                this.minDate = maxDate;
+                this.maxDate = minDate;
+            }else {
+                this.minDate = minDate;
+                this.maxDate = maxDate;
             }
+            this.date = (this.value&&parseDate(this.value))||parseDate(new Date());
+            this.focusDate = new Date(this.date);
+            this.checkDateIsValid();
+            div = document.createElement('div');
+            div.className = Datepicker.config.wrapCls;
+            if(this.inline) {
+                this.ele.appendChild(div);
+                this.wrap = div;
+            }else {
+                this.ele.classList.add('datepicker-wrap');
+                var top = this.ele.offsetHeight + 5, left = 0;
+                div.style.top = top +"px";
+                div.style.left = left + "px";
+                this.ele.appendChild(div);
+                this.setValue(this.getValue())
+            }
+            this.wrap = div;
+            this.initPanel();
+            this.initEvent();
         },
         getValue: function(format) {
             format = format||this.format;
@@ -196,7 +207,7 @@
                 type = map[i];
                 div = document.createElement('div');
                 div.className = type+' wrap';
-                (type!=='day'||(type==='day'&&!this.inline))&&(div.style.display='none');
+                (type!=='day')&&(div.style.display='none');
                 div.innerHTML =  this['get'+capitalize(type)+'PanelTpl'](date);
                 this.wrap.appendChild(div);
                 this[type+'Panel'] = div;
@@ -284,6 +295,7 @@
                     }
                     if(isSuccess){
                         this.setDate(this.focusDate);
+                        !this.inline&&this.setValue(this.getValue());
                         this.dayPanel.innerHTML = this.getDayPanelTpl();
                         this.onclicked.call(this);
                     }
@@ -373,7 +385,6 @@
                 if(startTs === curDate.getTime()) cls += ' focused';
                 if(startTs === this.date.getTime()) cls += ' active';
                 if(startTs === now.getTime()) cls += ' today'
-                
 
                 tbody +='<td class="'+cls+'">'+new Date(startTs).getDate()+'</td>';
                 startTs += 86400000;
@@ -436,7 +447,6 @@
                 this.focusDate = new Date(date);
             }
             this.dayPanel&&this.hide();
-            
         },
         setDateFromOut: function(date){
             date = parseDate(date);
@@ -446,28 +456,34 @@
             this.focusDate = date;
             this.setDate(date);
             this.dayPanel.innerHTML = this.getDayPanelTpl();
-            
         },
         show: function(){
-            var showItem = Datepicker.config.curItem;
-            if(showItem&&showItem !== this){
-                showItem.hide();
+            if(globalPanel&&globalPanel !== this){
+                globalPanel.hide();
             }
-            this.dayPanel.style.display="block";
+            this.wrap.style.display = 'block';
             this.ele.show = true;
-            Datepicker.config.curItem = this;
+            globalPanel = this;
         },
         hide: function(){
             if(this.inline) return false;
-            var panel = this.showPanel||'day';
-            this[panel+'Panel'].style.display="none";
-            this.showPanel = 'day';
+            this.wrap.style.display="none";
+            this.restore();
             this.ele.show = false;
-            Datepicker.config.curItem = null;
+            globalPanel = null;
+            //隐藏要重置下datepicker选中值
             if(this.focusDate.getTime()!==this.date.getTime()){
                 this.focusDate = new Date(this.date);
                 this.dayPanel.innerHTML = this.getDayPanelTpl();
             }
+        },
+        restore: function(){
+            var panel = this.showPanel||'day';
+            if(panel!=='day') {
+                this[panel+'Panel'].style.display="none";
+            }
+            toggleEle(this.dayPanel,true);
+            this.showPanel = 'day';
         },
         checkDateIsValid: function(){
             if(this.minDate&&this.minDate.getTime()>this.date.getTime()){
@@ -508,12 +524,15 @@
     };
     Datepicker.config = {wrapCls:'datepicker',curItem:null};
 
+    document.addEventListener('click',clearPanel);
+
     function RangeDatepicker(options){
         this.ele = options.ele;
         this.inputEl = this.ele.querySelector('.input');
         if(!this.ele||!this.inputEl) {
             return false;
         }
+        this.isCus  = true; //是否点击的自定义
         this.minDate = options.minDate || this.ele.getAttribute('dp-min');
         this.maxDate = options.maxDate || this.ele.getAttribute('dp-max');
         this.startDate = options.startDate || this.ele.getAttribute('dp-start') || new Date();
@@ -529,11 +548,13 @@
             this.ele.classList.add('range-datepicker-wrap');
             div = document.createElement('div');
             div.className = 'range-datepicker';
+            if(this.isCus){
+                div.className +=' daterange-show'
+            }
             div.style.left = 0;
             div.style.top = (this.ele.offsetHeight+5) +'px';
             this.ele.appendChild(div);
             this.wrap = div;
-            
             this.startPicker = new Datepicker({
                 ele: div,
                 inline:true,
@@ -544,6 +565,7 @@
                 onclicked: function(){
                     that.endPicker.setDateRange({start:this.date})
                     that.setStartValue(this.date);
+                    that.checkShotCut();
                 }
             });
             this.startPicker.wrap.className +=' start';
@@ -557,19 +579,20 @@
                 onclicked: function(){
                     that.startPicker.setDateRange({end:this.date})
                     that.setEndValue(this.date);
+                    that.checkShotCut();
                 }
             });
             this.endPicker.wrap.className +=' end';
+            this.setValue();
             this.initShortCut();
             this.initEvent();
             //快捷操作
-            
         },
         initShortCut: function(){
             var wrap = document.createElement('div'),ul = document.createElement('ul'),li,foot = document.createElement('div'),
             locale = RangeDatepicker.locale, items = locale.items,
             today = parseDate(new Date()), year = today.getFullYear(), month = today.getMonth(),day = today.getDate(),
-            startDate, endDate ,daySeconds = 86400000,flag,that = this;
+            startDate, endDate ,daySeconds = 86400000, flag, that = this, shortCurDate={};
             wrap.className = 'shortcut';
             for(var i in items) {
                 startDate = parseDate(new Date());
@@ -578,6 +601,7 @@
                 flag = '';
                 switch (i) {
                     case 'today':
+                        startDate = endDate = startDate.getTime();
                         break;
                     case 'yesterday':
                         startDate = endDate = startDate.setDate(startDate.getDate()-1);
@@ -592,6 +616,7 @@
                         break;
                     case 'thisMonth':
                         startDate = startDate.setDate(1);
+                        endDate = endDate.getTime();
                         break;
                     case 'lastMonth':
                         startDate = startDate.setMonth(month-1,1);
@@ -603,6 +628,7 @@
                         break;
                     case 'thisYear':
                         startDate = startDate.setMonth(0,1);
+                        endDate = endDate.setMonth(month,0);
                         break;
                     case 'lastYear':
                         startDate = startDate.setFullYear(year-1,0,1);
@@ -614,11 +640,12 @@
                         flag = 'customeRange';
                         break;
                 }
-                li.startDate = startDate;
-                li.endDate = endDate;
-                flag&&li.setAttribute('dp-e',flag);
+                li._type = i;
+                this.isCus&&flag&&(li.className ='active');
                 li.innerHTML = items[i];
                 ul.appendChild(li);
+                shortCurDate[i]=[startDate,endDate,li];
+                this._shortCutDate = shortCurDate;
             }
             ul.addEventListener('mouseover',function(e){
                 that.mouseoverEvent(e);
@@ -633,27 +660,68 @@
             this.startDateInput = foot.querySelector('.start');
             this.endDateInput = foot.querySelector('.end');
             this.wrap.appendChild(wrap);
-
         },
         initEvent: function(){
             var that = this;
-            this.wrap.addEventListener('click',function(e){
+            this.ele.addEventListener('click',function(e){
                 var target = e.target, etype = target.getAttribute('dp-e');
                 if(etype) {
 
                 }else if(target.nodeName.toLowerCase()==='li'){
-                    var active = target.parentNode.querySelector('.active');
-                    if(target===active) return false;
-                    active&&(active.className='');
-                    var startDate = target.startDate,endDate = target.endDate;
-                    that.endPicker.minDate = parseDate(startDate);
-                    that.startPicker.maxDate = parseDate(endDate);
-                    that.startPicker.setDateFromOut(startDate,true);
-                    that.endPicker.setDateFromOut(endDate,true);
-                    target.className='active';
-                    that.setValue();
+                    var dateType = target._type;
+                    if(!that.changeShortCutStatus(dateType)) return;
+                    if(dateType==='customeRange'){
+                        target.className='';
+                        if(!that.isCus) {
+                            that.showCustomePanel();
+                        }
+                    }else {
+                        var curItem = that._shortCutDate[dateType], startDate = curItem[0],endDate = curItem[1];
+                        that.endPicker.minDate = parseDate(startDate);
+                        that.startPicker.maxDate = parseDate(endDate);
+                        that.startPicker.setDateFromOut(startDate,true);
+                        that.endPicker.setDateFromOut(endDate,true);
+                        that.setValue();
+                        that.hide();
+                        this.isCus = false;
+                    }
+                }else if(!contains(that.wrap,target)){
+                    (this.show===true) ? that.hide() : that.show();
+                }
+                e.stopPropagation();
+            })
+            this.startDateInput.addEventListener('blur',function(){
+                var date = parseDate(this.value),
+                    minTimestamp = that.minDate ? parseDate(that.minDate).getTime() : 0,
+                    maxTimestamp = parseDate(that.endDateInput.value).getTime();
+                if(!date || date.toString()==='Invalid Date' ||
+                    date.getTime() > maxTimestamp ||
+                    date.getTime() < minTimestamp){
+                    this.value = that.getStartValue();
                 }
             })
+            this.endDateInput.addEventListener('blur',function(){
+                var date = parseDate(this.value),
+                    minTimestamp = parseDate(that.startDateInput.value).getTime(),
+                    maxTimestamp = that.maxDate ? parseDate(that.maxDate).getTime() : Infinity;
+                if(!date||date.toString()==='Invalid Date' ||
+                    date.getTime() > maxTimestamp ||
+                    date.getTime() < minTimestamp){
+                    this.value = that.getEndValue();
+                }
+            })
+        },
+        applyHandle: function(){
+            var inputStart = this.startDateInput.value,inputEnd = this.endDateInput.value;
+            var start = this.getStartValue(),end = this.getEndValue(), flag = false;
+            if(inputStart !== start) {
+                flag = true;
+                
+            }
+
+            if(inputEnd !== end) {
+                flag = false;
+            }
         },
         mouseoverEvent: function(e){
             var target = e.target,
@@ -685,9 +753,58 @@
             date = dateFormat(date,this.endPicker.format);
             this.endDateInput.value = date;
         },
+        checkShotCut: function(){
+            var startDate = this.startPicker.date.getTime(), endDate = this.endPicker.date.getTime();
+            var shortcut = this._shortCutDate, flag = true;
+            for(var d in shortcut) {
+                if(d==='customeRange') { continue ;}
+                var item = shortcut[d];
+                if(startDate==item[0]&&endDate==item[1]) {
+                    this.changeShortCutStatus(d)
+                    flag = false;
+                    break;
+                }
+            }
+            if(flag) {
+                this.changeShortCutStatus('customeRange');
+            }
+            this.isCus = flag;
+        },
+        changeShortCutStatus: function(i) {
+            var li = this._shortCutDate[i][2];
+            if(li.className==='active') return false;
+            li.parentNode.querySelector('.active')&&(li.parentNode.querySelector('.active').className = '');
+            li.className = 'active';
+            return true;
+        },
         setValue: function(){
             var value = this.getStartValue() +' - '+ this.getEndValue();
-            this.inputEl.innerHTML = value;
+            if(this.inputEl.nodeName.toLowerCase()==='input'){
+                this.inputEl.value = value;
+            }else {
+                this.inputEl.innerHTML = value;
+            }
+        },
+        show: function(){
+            this.ele.show = true;
+            this.wrap.style.display ='block';
+            globalPanel = this;
+        },
+        hide: function(){
+            if(this.isCus===false) {
+                this.hideCustomePanel();
+            }
+            this.wrap.style.display="none";
+            this.ele.show = false;
+            globalPanel = null;
+        },
+        showCustomePanel: function(){
+            this.wrap.className +=' daterange-show';
+        },
+        hideCustomePanel: function(){
+            this.wrap.className = this.wrap.className.replace(' daterange-show','');
+            this.startPicker.restore();
+            this.endPicker.restore();
         }
     };
     RangeDatepicker.locale = {
