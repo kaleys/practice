@@ -69,7 +69,7 @@
     }
     //将字符串或者int类型转成日期对象
     function parseDate(date){
-        if(typeof date=='string'){
+        if(typeof date==='string'){
             if (/^\d+$/.test(date)) {
                 date = toInt(date);
             }else {
@@ -87,11 +87,11 @@
                 }
             }
         }
-        if(typeof date=='number'){
+        if(typeof date==='number'){
             date = new Date(date);
         }
         if(Object.prototype.toString.call(date)!='[object Date]'){
-            return;
+            return false;
         }
         return new Date(date.getFullYear(),date.getMonth(),date.getDate());
     }
@@ -137,7 +137,7 @@
         if(!opts.ele) return ;
         opts.minDate = opts.minDate || opts.ele.getAttribute('dp-min');
         opts.maxDate = opts.maxDate || opts.ele.getAttribute('dp-max');
-        opts.value = opts.value || opts.ele.getAttribute('dp-v');
+        opts.date = opts.date || opts.ele.getAttribute('dp-v');
         extend(this,{
             ele:null,               //实例化的dom
             inline: false,          //是否展开还是点击别的dom元素触发展开
@@ -145,7 +145,6 @@
             minDate: null,          //最小日期
             maxDate: null,          //最大日期
             format: 'yyyy/mm/dd',   //显示日期时的格式化格式
-            value: null,            //显示的值
             clear: true,            //是否显示清除按钮
             showFooter: true,
             date: null,             //value是日期格式
@@ -170,7 +169,7 @@
                 this.minDate = minDate;
                 this.maxDate = maxDate;
             }
-            this.date = (this.value&&parseDate(this.value))||parseDate(new Date());
+            this.date = parseDate(this.date||new Date());
             this.focusDate = new Date(this.date);
             this.checkDateIsValid();
             div = document.createElement('div');
@@ -534,19 +533,34 @@
             return false;
         }
         this.isCus  = true; //是否点击的自定义
-        this.minDate = options.minDate || this.ele.getAttribute('dp-min');
-        this.maxDate = options.maxDate || this.ele.getAttribute('dp-max');
-        this.startDate = options.startDate || this.ele.getAttribute('dp-start') || new Date();
-        this.endDate = options.endDate || this.ele.getAttribute('dp-end')|| new Date();
+        this.minDate = parseDate(options.minDate || this.ele.getAttribute('dp-min'));
+        this.maxDate = parseDate(options.maxDate || this.ele.getAttribute('dp-max'));
+        this.startDate = options.startDate || this.ele.getAttribute('dp-start');
+        this.endDate = options.endDate || this.ele.getAttribute('dp-end');
         this.format = options.format || 'yyyy/mm/dd';
         this.init();
     }
     RangeDatepicker.prototype = {
         constructor: RangeDatepicker,
         init: function(){
-            var div,that = this;
-            this.startDate = parseDate(this.startDate);
-            this.endDate = parseDate(this.endDate);
+            var div,that = this, maxDate=Infinity, minDate=0, temp;
+            this.startDate = parseDate(this.startDate)|| parseDate(new Date());
+            this.endDate = parseDate(this.endDate) || parseDate(new Date());
+            if(this.startDate.getTime() > this.endDate.getTime()) {
+                throw new Error('开始时间不能比结束时间大');
+                return false;
+            }
+            minDate = this.minDate ? this.minDate.getTime() : minDate;
+            maxDate = this.maxDate ? this.maxDate.getTime() : maxDate;
+            if(minDate > maxDate) {
+                throw new Error('规则最小时间不能比规定的最大时间大');
+                return false;
+            }
+            if(this.startDate.getTime() < minDate) this.startDate = minDate;
+            if(this.startDate.getTime() > maxDate) this.startDate  = maxDate
+            if(this.endDate.getTime() < minDate) this.endDate = minDate;
+            if(this.endDate.getTime() > maxDate) this.endDate = maxDate;
+            
             this.ele.classList.add('range-datepicker-wrap');
             div = document.createElement('div');
             div.className = 'range-datepicker';
@@ -562,6 +576,7 @@
                 inline:true,
                 minDate: this.minDate,
                 maxDate: this.endDate,
+                date: this.startDate,
                 showRange:'start',
                 showFooter: false,
                 format: this.format,
@@ -578,6 +593,7 @@
                 minDate: this.startDate,
                 maxDate: this.maxDate,
                 showRange:'end',
+                date: this.endDate,
                 showFooter: false,
                 format: this.format,
                 onclicked: function(){
@@ -846,7 +862,7 @@
     }
 
     //new Datepicker({ele:document.body,inline:true});
-    new Datepicker({ele:document.getElementById('date'),format:'yyyy-mm-dd',minDate:'2016-08-01',maxDate:'2016-09-05',showRange:true});
+    new Datepicker({ele:document.getElementById('date'),format:'yyyy-mm-dd',minDate:'2016-08-01',maxDate:'2016-09-02',showRange:true});
     //new Datepicker({ele:document.getElementById('date1')});
     new RangeDatepicker({ele:document.getElementById('rangeDate'),maxDate:'2016-09-02'})
 
