@@ -275,6 +275,7 @@
         },
         todayHandler: function(){
             this.setDateFromOut(new Date());
+            this.setValue(this.getValue());
         },
         clearHandler: function(){
             this.setValue('');
@@ -537,6 +538,7 @@
         this.maxDate = options.maxDate || this.ele.getAttribute('dp-max');
         this.startDate = options.startDate || this.ele.getAttribute('dp-start') || new Date();
         this.endDate = options.endDate || this.ele.getAttribute('dp-end')|| new Date();
+        this.format = options.format || 'yyyy/mm/dd';
         this.init();
     }
     RangeDatepicker.prototype = {
@@ -562,6 +564,7 @@
                 maxDate: this.endDate,
                 showRange:'start',
                 showFooter: false,
+                format: this.format,
                 onclicked: function(){
                     that.endPicker.setDateRange({start:this.date})
                     that.setStartValue(this.date);
@@ -576,6 +579,7 @@
                 maxDate: this.maxDate,
                 showRange:'end',
                 showFooter: false,
+                format: this.format,
                 onclicked: function(){
                     that.startPicker.setDateRange({end:this.date})
                     that.setEndValue(this.date);
@@ -664,12 +668,15 @@
         initEvent: function(){
             var that = this;
             this.ele.addEventListener('click',function(e){
-                var target = e.target, etype = target.getAttribute('dp-e');
+                var target = e.target, etype = target.getAttribute('dp-e'),fn;
                 if(etype) {
-
+                    if(fn=that[etype+'Handle']) {
+                        fn.call(that);
+                        e.preventDefault();
+                    }
                 }else if(target.nodeName.toLowerCase()==='li'){
                     var dateType = target._type;
-                    if(!that.changeShortCutStatus(dateType)) return;
+                    if(!that.changeShortCutStatus(dateType)) return false;
                     if(dateType==='customeRange'){
                         target.className='';
                         if(!that.isCus) {
@@ -716,12 +723,22 @@
             var start = this.getStartValue(),end = this.getEndValue(), flag = false;
             if(inputStart !== start) {
                 flag = true;
-                
+                this.startPicker.setDateFromOut(inputStart);
+                this.endPicker.setDateRange({start:inputStart});
             }
-
             if(inputEnd !== end) {
-                flag = false;
+                flag = true;
+                this.endPicker.setDateFromOut(inputEnd);
+                this.startPicker.setDateRange({end: inputEnd});
             }
+            if(flag) {
+                this.setValue();
+                this.checkShotCut();
+            }
+            this.hide();
+        },
+        cancelHandle: function(){
+            this.hide();
         },
         mouseoverEvent: function(e){
             var target = e.target,
@@ -829,7 +846,7 @@
     }
 
     //new Datepicker({ele:document.body,inline:true});
-    new Datepicker({ele:document.getElementById('date'),minDate:'2016-08-01',maxDate:'2016-09-05',showRange:true});
+    new Datepicker({ele:document.getElementById('date'),format:'yyyy-mm-dd',minDate:'2016-08-01',maxDate:'2016-09-05',showRange:true});
     //new Datepicker({ele:document.getElementById('date1')});
     new RangeDatepicker({ele:document.getElementById('rangeDate'),maxDate:'2016-09-02'})
 
