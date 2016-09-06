@@ -161,6 +161,9 @@
                 minDate = this.minDate ? parseDate(this.minDate) : null,
                 maxDate = this.maxDate ? parseDate(this.maxDate) : null;
             this.inputEl = this.ele.querySelector('.input')||this.ele;
+            if(this.inputEl.nodeName.toLowerCase()==='input'){
+                this.inputEl.setAttribute('readonly','readonly');
+            }
             //如果最小日期比最大日期要大，要纠正
             if(minDate&&maxDate&&minDate>maxDate){
                 this.minDate = maxDate;
@@ -183,17 +186,19 @@
                 div.style.top = top +"px";
                 div.style.left = left + "px";
                 this.ele.appendChild(div);
-                this.setValue(this.getValue())
+                this.setValue()
             }
             this.wrap = div;
             this.initPanel();
             this.initEvent();
         },
         getValue: function(format) {
+            if(!this.date) return '';
             format = format||this.format;
             return dateFormat(this.date,format);
         },
-        setValue: function(value){
+        setValue: function(){
+            var value = this.getValue();
             if(this.inputEl.nodeName.toLowerCase()==='input'){
                 this.inputEl.value = value;
             }else {
@@ -214,8 +219,8 @@
         },
         initEvent: function(){
             var that = this,wrap = !this.inline ? this.ele : this.wrap;
-            wrap.addEventListener('click',function(e){
-                var target = e.target,eventType = target.getAttribute('dp-e');
+            wrap.addEventListener('mouseup',function(e){
+                var target = e.target, eventType = target.getAttribute('dp-e');
                 if(eventType&&that[eventType+'Handler']) {
                     that[eventType+'Handler'](target);
                 }else if(target.parentNode.parentNode.nodeName.toLowerCase()==='tbody'){
@@ -224,6 +229,7 @@
                     if(this.show){
                         that.hide();
                     }else{
+                        console.log('show');
                         that.show();
                     }
                 }
@@ -274,10 +280,13 @@
         },
         todayHandler: function(){
             this.setDateFromOut(new Date());
-            this.setValue(this.getValue());
+            this.setValue();
+            this.hide();
         },
         clearHandler: function(){
-            this.setValue('');
+            this.date = null;
+            this.setValue();
+            this.hide();
         },
         tdHandler: function(target){
             var type = this.showPanel||'day',value = target.innerHTML,cls = target.className,isSuccess;
@@ -295,9 +304,10 @@
                     }
                     if(isSuccess){
                         this.setDate(this.focusDate);
-                        !this.inline&&this.setValue(this.getValue());
+                        !this.inline&&this.setValue();
                         this.dayPanel.innerHTML = this.getDayPanelTpl();
                         this.onclicked.call(this);
+                        this.hide();
                     }
                     break;
                 case 'month':
@@ -321,7 +331,7 @@
             for(var i=0; i<12; i++) {
                 yearcls = '';
                 if(showStartYear < minYear||showStartYear > maxYear) yearcls +='disabled ';
-                if(showStartYear === this.date.getFullYear()) yearcls +='active ';
+                if(showStartYear === this.date&&this.date.getFullYear()) yearcls +='active ';
                 if(showStartYear === this.focusDate.getFullYear()) yearcls +='focused ';
                 (i%4===0) && (tbody += '<tr>');
                 tbody +='<td class="'+yearcls+'">'+showStartYear+'</td>';
@@ -344,7 +354,7 @@
                       ){
                         cls +=' disabled';
                     }
-                    if(year === this.date.getFullYear() && i === this.date.getMonth()) cls +='active';
+                    if(this.date&&year === this.date.getFullYear() && i === this.date.getMonth()) cls +='active';
                     if(i===this.focusDate.getMonth()) cls +=' focused';
                     (i%4===0) && (tbody += '<tr>');
                     tbody +='<td class="'+cls+'" data-m="'+i+'">'+locale.MONTH[i]+'</td>';
@@ -362,7 +372,7 @@
                 maxTimestamp = this.maxDate ? this.maxDate.getTime() : Infinity,
                 startTimestamp = start.getTime(), 
                 endTimestamp = (new Date(year,month+1,0)).getTime(),
-                curTimestamp = this.date.getTime(),
+                curTimestamp = this.date ? this.date.getTime() : Infinity,
                 daySeconds = 86400000, 
                 startTs = startTimestamp - start.getDay() * daySeconds,
                 statusArr = [!!(startTs - daySeconds < minTimestamp)],cls='';
@@ -446,7 +456,6 @@
             if(changeFocus){
                 this.focusDate = new Date(date);
             }
-            this.dayPanel&&this.hide();
         },
         setDateFromOut: function(date){
             date = parseDate(date);
@@ -472,7 +481,7 @@
             this.ele.show = false;
             globalPanel = null;
             //隐藏要重置下datepicker选中值
-            if(this.focusDate.getTime()!==this.date.getTime()){
+            if(this.date&&this.focusDate.getTime()!==this.date.getTime()){
                 this.focusDate = new Date(this.date);
                 this.dayPanel.innerHTML = this.getDayPanelTpl();
             }
@@ -480,6 +489,7 @@
         restore: function(){
             var panel = this.showPanel||'day';
             if(panel!=='day') {
+
                 this[panel+'Panel'].style.display="none";
             }
             toggleEle(this.dayPanel,true);
@@ -507,7 +517,7 @@
                 this.maxDate = parseDate(range.end);
             }
             if(!this.checkDateIsValid()&&!this.inline){
-                this.setValue(this.getValue())
+                this.setValue()
             }
             if(refreshPanel) {
                 this.dayPanel.innerHTML = this.getDayPanelTpl();
@@ -524,7 +534,7 @@
     };
     Datepicker.config = {wrapCls:'datepicker',curItem:null};
 
-    document.addEventListener('click',clearPanel);
+    document.addEventListener('mouseup',clearPanel);
 
     function RangeDatepicker(options){
         this.ele = options.ele;
@@ -648,7 +658,7 @@
                         break;
                     case 'thisYear':
                         startDate = startDate.setMonth(0,1);
-                        endDate = endDate.setMonth(month,0);
+                        endDate = endDate.getTime();
                         break;
                     case 'lastYear':
                         startDate = startDate.setFullYear(year-1,0,1);
@@ -664,6 +674,8 @@
                 this.isCus&&flag&&(li.className ='active');
                 li.innerHTML = items[i];
                 ul.appendChild(li);
+                startDate = Math.max(startDate,this.minDate);
+                endDate = Math.min(endDate,this.maxDate);
                 shortCurDate[i]=[startDate,endDate,li];
                 this._shortCutDate = shortCurDate;
             }
@@ -705,8 +717,8 @@
                         that.startPicker.setDateFromOut(startDate,true);
                         that.endPicker.setDateFromOut(endDate,true);
                         that.setValue();
+                        that.isCus = false;
                         that.hide();
-                        this.isCus = false;
                     }
                 }else if(!contains(that.wrap,target)){
                     (this.show===true) ? that.hide() : that.show();
@@ -736,7 +748,7 @@
         },
         applyHandle: function(){
             var inputStart = this.startDateInput.value,inputEnd = this.endDateInput.value;
-            var start = this.getStartValue(),end = this.getEndValue(), flag = false;
+            var start = this.startDate,end = this.endDate, flag = false;
             if(inputStart !== start) {
                 flag = true;
                 this.startPicker.setDateFromOut(inputStart);
@@ -757,20 +769,17 @@
             this.hide();
         },
         mouseoverEvent: function(e){
-            var target = e.target,
-                startDate = target.startDate,
-                endDate = target.endDate;
-            if(startDate&&endDate) {
-                this.setStartValue(startDate);
-                this.setEndValue(endDate);
-            }
+            var target = e.target,type = target._type, item;
+            if(!type||type==='customeRange') return false;
+            item =this._shortCutDate[type];
+            this.setStartValue(item[0]);
+            this.setEndValue(item[1]);
         },
         mouseoutEvent: function(e){
-            var startDate = e.target.startDate;
-            if(startDate) {
-                this.setStartValue(this.getStartValue());
-                this.setEndValue(this.getEndValue());
-            }
+            var type=e.target._type;
+            if(!type||type==='customeRange') return false;
+            this.setStartValue(this.getStartValue());
+            this.setEndValue(this.getEndValue());
         },
         getStartValue: function(){
             return this.startPicker.getValue();
@@ -812,6 +821,8 @@
         },
         setValue: function(){
             var value = this.getStartValue() +' - '+ this.getEndValue();
+            this.startDate = this.getStartValue();
+            this.endDate = this.getEndValue();
             if(this.inputEl.nodeName.toLowerCase()==='input'){
                 this.inputEl.value = value;
             }else {
