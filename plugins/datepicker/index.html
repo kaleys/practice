@@ -30,5 +30,16 @@
 
 
     <script src="datepicker.js"></script>
+
+    <script>
+        var a = document.getElementById('test-btn');
+        a.haha="kaleys";
+        a.b = {name:'kealin',age:'2'};
+
+        a.addEventListener('click',function(e){
+            console.log(this.haha);
+            console.log(this.b);
+        })
+    </script>
 </body>
 </html>

@@ -181,7 +181,7 @@
                 this.ele.appendChild(div);
                 this.wrap = div;
             }else {
-                this.ele.classList.add('datepicker-wrap');
+                this.ele.className +=' datepicker-wrap';
                 var top = this.ele.offsetHeight + 5, left = 0;
                 div.style.top = top +"px";
                 div.style.left = left + "px";
@@ -219,7 +219,7 @@
         },
         initEvent: function(){
             var that = this,wrap = !this.inline ? this.ele : this.wrap;
-            wrap.addEventListener('mouseup',function(e){
+            wrap.addEventListener('click',function(e){
                 var target = e.target, eventType = target.getAttribute('dp-e');
                 if(eventType&&that[eventType+'Handler']) {
                     that[eventType+'Handler'](target);
@@ -534,7 +534,7 @@
     };
     Datepicker.config = {wrapCls:'datepicker',curItem:null};
 
-    document.addEventListener('mouseup',clearPanel);
+    document.addEventListener('click',clearPanel);
 
     function RangeDatepicker(options){
         this.ele = options.ele;
@@ -571,7 +571,7 @@
             if(this.endDate.getTime() < minDate) this.endDate = minDate;
             if(this.endDate.getTime() > maxDate) this.endDate = maxDate;
             
-            this.ele.classList.add('range-datepicker-wrap');
+            this.ele.className+=' range-datepicker-wrap';
             div = document.createElement('div');
             div.className = 'range-datepicker';
             if(this.isCus){
@@ -716,8 +716,8 @@
                         that.startPicker.maxDate = parseDate(endDate);
                         that.startPicker.setDateFromOut(startDate,true);
                         that.endPicker.setDateFromOut(endDate,true);
-                        that.setValue();
                         that.isCus = false;
+                        that.setValue();
                         that.hide();
                     }
                 }else if(!contains(that.wrap,target)){
@@ -878,7 +878,5 @@
     new RangeDatepicker({ele:document.getElementById('rangeDate'),maxDate:'2016-09-02'})
 
 
-    document.getElementById('test-btn').addEventListener('click',function(e){
-        e.stopPropagation();
-    })
+    
 })();
