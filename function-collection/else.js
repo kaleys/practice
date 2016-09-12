@@ -28,6 +28,32 @@ function debounce (func, wait) {
     }
 }
 
+function extend() {
+    var options, name, src, copy,
+        target = arguments[ 0 ] || {},
+        i=1,
+        length = arguments.length;
+    // Handle case when target is a string or something (possible in deep copy)
+    if ( typeof target !== "object" && Object.prototype.toString.call(target)==='[object Functon]' ) {
+        target = {};
+    }
+    for ( ; i < length; i++ ) {
+        // Only deal with non-null/undefined values
+        if ( ( options = arguments[ i ] ) != null ) {
+            // Extend the base object
+            for ( name in options ) {
+                src = target[ name ];
+                copy = options[ name ];
+                if ( target === copy ) {
+                    continue;
+                }
+                target[ name ] = copy;
+            }
+        }
+    }
+    return target;
+}
+
 /**
  * 查找 indexOf 要比原生的快
  * @param arr
