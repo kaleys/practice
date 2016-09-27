@@ -57,8 +57,9 @@ for(var i=0;i<20;i++) {
 
 var bst = new BST();
 while(datas.length) {
-	var c = datas.splice(random(0,datas.length-1),1);
+	var c = datas.splice(random(0,datas.length-1),1)[0];
 	bst.insert(c);
 }
 
 bst.inOrder(bst.root);
+//console.log(bst.root)
